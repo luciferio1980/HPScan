@@ -46,6 +46,18 @@ public sealed class PageEditState
     };
 
     public static PageEditState Identity() => new();
+
+    public void RotateLeft() => RotationDegrees = NormalizeRotation(RotationDegrees + 270);
+
+    public void RotateRight() => RotationDegrees = NormalizeRotation(RotationDegrees + 90);
+
+    public void Rotate180() => RotationDegrees = NormalizeRotation(RotationDegrees + 180);
+
+    public static int NormalizeRotation(int degrees)
+    {
+        var value = degrees % 360;
+        return value < 0 ? value + 360 : value;
+    }
 }
 
 public sealed record CropRegion(double X, double Y, double Width, double Height)

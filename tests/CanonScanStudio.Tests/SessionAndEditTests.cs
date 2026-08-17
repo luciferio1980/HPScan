@@ -77,6 +77,24 @@ public class SessionAndEditTests : IDisposable
     }
 
     [Fact]
+    public void Rotate_left_and_right_step_by_90_degrees()
+    {
+        var edit = PageEditState.Identity();
+        edit.RotateRight();
+        edit.RotationDegrees.Should().Be(90);
+        edit.RotateRight();
+        edit.RotationDegrees.Should().Be(180);
+        edit.RotateLeft();
+        edit.RotationDegrees.Should().Be(90);
+        edit.RotateLeft();
+        edit.RotationDegrees.Should().Be(0);
+        edit.RotateLeft();
+        edit.RotationDegrees.Should().Be(270);
+        edit.RotateRight();
+        edit.RotationDegrees.Should().Be(0);
+    }
+
+    [Fact]
     public void Reset_edit_returns_to_identity()
     {
         var edit = new PageEditState { Brightness = 12, RotationDegrees = 180, Contrast = -5 };

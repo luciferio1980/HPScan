@@ -106,7 +106,10 @@ public sealed partial class MainViewModel : ObservableObject
     public string PageCounter => Pages.Count == 0 ? "0 / 0" : $"{(SelectedPage?.Page.Order ?? 0) + 1} / {Pages.Count}";
     public string ZoomLabel => $"{Math.Round(Zoom * 100)} %";
     public bool CanSave => Pages.Count > 0 && !IsScanning;
+    public bool HasPages => Pages.Count > 0;
     public bool HasPreview => SelectedPage?.Preview is not null;
+    public bool HasSelectedPage => SelectedPage is not null;
+    public string AddPageLabel => Pages.Count == 0 ? "Escanear página" : "Añadir página";
     public string ScannerLabel => SelectedDevice?.DisplayName ?? "Canon PIXMA TS5151";
     public string ConnectionLabel => SelectedDevice?.Connection switch
     {
@@ -196,7 +199,9 @@ public sealed partial class MainViewModel : ObservableObject
                 ReloadPagesFromSession();
             }));
             ErrorBanner = "";
-            StatusText = "Listo";
+            StatusText = Pages.Count <= 1
+                ? "Página lista. Pulsa Añadir página para escanear otra."
+                : $"Página {Pages.Count} añadida.";
         }
         catch (Exception ex)
         {
@@ -316,19 +321,21 @@ public sealed partial class MainViewModel : ObservableObject
         ReloadPagesFromSession();
     }
 
-    [RelayCommand]
-    private void RotateLeft() => MutateEdit("Rotar", e => e.RotationDegrees = (e.RotationDegrees + 270) % 360);
+    private bool CanEditPage() => SelectedPage is not null;
 
-    [RelayCommand]
-    private void RotateRight() => MutateEdit("Rotar", e => e.RotationDegrees = (e.RotationDegrees + 90) % 360);
+    [RelayCommand(CanExecute = nameof(CanEditPage))]
+    private void RotateLeft() => MutateEdit("Rotar izquierda", e => e.RotateLeft());
 
-    [RelayCommand]
-    private void Rotate180() => MutateEdit("Rotar", e => e.RotationDegrees = (e.RotationDegrees + 180) % 360);
+    [RelayCommand(CanExecute = nameof(CanEditPage))]
+    private void RotateRight() => MutateEdit("Rotar derecha", e => e.RotateRight());
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanEditPage))]
+    private void Rotate180() => MutateEdit("Rotar", e => e.Rotate180());
+
+    [RelayCommand(CanExecute = nameof(CanEditPage))]
     private void FlipHorizontal() => MutateEdit("Voltear", e => e.FlipHorizontal = !e.FlipHorizontal);
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanEditPage))]
     private void FlipVertical() => MutateEdit("Voltear", e => e.FlipVertical = !e.FlipVertical);
 
     [RelayCommand]
@@ -537,24 +544,48 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void MutateEdit(string name, Action<PageEditState> mutate)
     {
-        if (SelectedPage is null) return;
-        var page = SelectedPage.Page;
+        var item = SelectedPage ?? Pages.LastOrDefault();
+        if (item is null)
+        {
+            return;
+        }
+
+        if (!ReferenceEquals(SelectedPage, item))
+        {
+            SelectedPage = item;
+        }
+
+        var page = item.Page;
         var before = page.Edit.Clone();
         var after = page.Edit.Clone();
         mutate(after);
         _undo.Execute(new DelegateCommand(name,
-            () =>
-            {
-                page.Edit = after.Clone();
-                RefreshPageImages(SelectedPage);
-                SyncEditFromPage();
-            },
-            () =>
-            {
-                page.Edit = before.Clone();
-                RefreshPageImages(SelectedPage);
-                SyncEditFromPage();
-            }));
+            () => ApplyEditState(item, after),
+            () => ApplyEditState(item, before)));
+    }
+
+    private void ApplyEditState(PageItemViewModel item, PageEditState state)
+    {
+        item.Page.Edit = state.Clone();
+        try
+        {
+            RefreshPageImages(item);
+        }
+        catch (Exception ex)
+        {
+            _log.Error("No se ha podido aplicar la edición a la página.", ex);
+            _dialogs.Info("Editar página", "No se ha podido girar o actualizar la página. " + ex.Message);
+        }
+
+        if (ReferenceEquals(SelectedPage, item))
+        {
+            SyncEditFromPage();
+        }
+
+        _session.SaveRecovery();
+        OnPropertyChanged(nameof(SelectedPage));
+        OnPropertyChanged(nameof(HasPreview));
+        item.NotifyLabels();
     }
 
     private void SyncEditFromPage()
@@ -798,10 +829,18 @@ public sealed partial class MainViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(PageCounter));
         OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(HasPages));
         OnPropertyChanged(nameof(HasPreview));
+        OnPropertyChanged(nameof(HasSelectedPage));
+        OnPropertyChanged(nameof(AddPageLabel));
         OnPropertyChanged(nameof(ScannerLabel));
         OnPropertyChanged(nameof(ConnectionLabel));
         OnPropertyChanged(nameof(IsCustomSize));
         OnPropertyChanged(nameof(ZoomLabel));
+        RotateLeftCommand.NotifyCanExecuteChanged();
+        RotateRightCommand.NotifyCanExecuteChanged();
+        Rotate180Command.NotifyCanExecuteChanged();
+        FlipHorizontalCommand.NotifyCanExecuteChanged();
+        FlipVerticalCommand.NotifyCanExecuteChanged();
     }
 }

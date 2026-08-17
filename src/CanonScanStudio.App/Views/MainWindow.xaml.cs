@@ -14,6 +14,10 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         DataContext = viewModel;
+        viewModel.Pages.CollectionChanged += (_, _) =>
+        {
+            Dispatcher.BeginInvoke(() => PageStripScroll.ScrollToRightEnd(), System.Windows.Threading.DispatcherPriority.Loaded);
+        };
     }
 
     private void OnDragOver(object sender, DragEventArgs e)
@@ -32,6 +36,17 @@ public partial class MainWindow : Window
                 vm.ImportPath(file);
             }
         }
+    }
+
+    private void OnPageStripWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (sender is not ScrollViewer viewer)
+        {
+            return;
+        }
+
+        viewer.ScrollToHorizontalOffset(viewer.HorizontalOffset - e.Delta);
+        e.Handled = true;
     }
 
     private void ThumbnailPreviewMouseDown(object sender, MouseButtonEventArgs e)
