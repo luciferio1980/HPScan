@@ -16,4 +16,5 @@ public interface IScannerService
     ScanCapabilities? RefreshCapabilities();
     Task<ScanResult> ScanAsync(ScanRequest request);
     DiagnosticReport CreateDiagnosticReport();
+    ScanDevice? PickInteractively();
 }

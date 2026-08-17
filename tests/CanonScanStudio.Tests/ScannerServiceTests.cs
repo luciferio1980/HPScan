@@ -37,6 +37,25 @@ public class ScannerServiceTests
     }
 
     [Fact]
+    public void PickInteractively_adds_and_selects_the_device()
+    {
+        var picked = new ScanDevice
+        {
+            Id = "wia-picked",
+            Name = "Canon TS5100 series",
+            Interface = ScannerInterfaceKind.Wia,
+            IsCanonTs5100Family = true,
+            IsAvailable = true
+        };
+        var backend = new MockScannerBackend { PickedDevice = picked };
+        var service = new ScannerService([backend], new TempSettingsService(), new InMemoryLog());
+        service.PickInteractively().Should().NotBeNull();
+        service.SelectedDevice!.Id.Should().Be("wia-picked");
+        service.Devices.Should().Contain(d => d.Id == "wia-picked");
+        service.Status.Should().Be(ScannerAvailability.Ready);
+    }
+
+    [Fact]
     public async Task Scan_uses_real_backend_result_not_a_placeholder()
     {
         var marker = "CANON-SCAN-MARKER"u8.ToArray();

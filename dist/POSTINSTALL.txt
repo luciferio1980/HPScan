@@ -4,6 +4,9 @@ Antes de escanear:
 1. Enciende el Canon PIXMA TS5151.
 2. Conéctalo por USB o Wi-Fi.
 3. Si no aparece en el programa, instala el MP Driver oficial de Canon
-   para la serie TS5100. Este instalador NO incluye controladores de Canon.
+   para la serie TS5100. Este instalador NO incluye controladores de Canon:
+   https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers
+4. En Wi-Fi abre IJ Network Scanner Selector EX, marca el TS5100 y pulsa OK.
 
 El escáner puede mostrarse como "Canon TS5100 series".
+

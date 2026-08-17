@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.3
-          name: Canon Scan Studio 1.0.3
+          tag_name: v1.0.4
+          name: Canon Scan Studio 1.0.4
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -96,9 +96,10 @@ jobs:
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
 
-            ## Novedades 1.0.3
-            - Mejor detección del PIXMA TS5151 (WIA más permisivo + escáneres de Windows en Wi-Fi/eSCL).
-            - Mensajes más claros si Windows ve la impresora pero no el escáner.
+            ## Novedades 1.0.4
+            - Si Windows no ve el escáner: botones para **descargar el MP Driver de Canon**, **elegir el escáner de Windows** y abrir el **Selector de red Canon** (imprescindible en Wi-Fi).
+            - Enlace directo a la página oficial del PIXMA TS5151 (serie TS5100).
+            - Reintentar vuelve a buscar dispositivos en lugar de escanear en vacío.
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo
@@ -106,9 +107,10 @@ jobs:
 
             ## Uso
             1. Enciende el Canon PIXMA TS5151.
-            2. Instala el MP Driver oficial de la serie TS5100 si Windows no ve el **escáner** (imprimir no basta).
-            3. Abre Canon Scan Studio y pulsa **Escanear**.
-            4. Pulsa **Añadir página** o la tarjeta **+** para escanear la siguiente hoja.
+            2. Instala el **MP Driver** oficial de la serie TS5100 (imprimir no basta): https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers
+            3. En Wi-Fi abre **IJ Network Scanner Selector EX**, marca el TS5100 y pulsa OK.
+            4. Abre Canon Scan Studio y pulsa **Escanear**.
+            5. Pulsa **Añadir página** o la tarjeta **+** para escanear la siguiente hoja.
 
             Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas* (el ejecutable no está firmado con certificado de código).
 

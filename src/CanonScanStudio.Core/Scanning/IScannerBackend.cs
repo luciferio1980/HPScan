@@ -10,4 +10,5 @@ public interface IScannerBackend
     ScanCapabilities GetCapabilities(string deviceId);
     ScanResult Scan(ScanRequest request);
     bool CanConnect(string deviceId);
+    ScanDevice? PickInteractively();
 }

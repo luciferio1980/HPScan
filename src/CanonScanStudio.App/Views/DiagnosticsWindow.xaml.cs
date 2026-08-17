@@ -1,6 +1,7 @@
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using CanonScanStudio.App.Services;
 using CanonScanStudio.Infrastructure;
 using CanonScanStudio.Services;
 
@@ -9,14 +10,27 @@ namespace CanonScanStudio.App.Views;
 public partial class DiagnosticsWindow : Window
 {
     private readonly IScannerService _scanner;
+    private readonly IAppLog _log;
     private readonly ICommand _scanCommand;
+    private readonly ICommand? _pickCommand;
 
-    public DiagnosticsWindow(IScannerService scanner, IAppLog log, ICommand scanCommand)
+    public DiagnosticsWindow(
+        IScannerService scanner,
+        IAppLog log,
+        ICommand scanCommand,
+        ICommand? pickCommand = null)
     {
         InitializeComponent();
         _scanner = scanner;
+        _log = log;
         _scanCommand = scanCommand;
-        var report = scanner.CreateDiagnosticReport();
+        _pickCommand = pickCommand;
+        RenderReport();
+    }
+
+    private void RenderReport()
+    {
+        var report = _scanner.CreateDiagnosticReport();
         var builder = new StringBuilder();
         builder.AppendLine("Diagnóstico de Canon Scan Studio");
         builder.AppendLine($"Escáner detectado: {report.Device?.Name ?? "(ninguno)"}");
@@ -38,9 +52,45 @@ public partial class DiagnosticsWindow : Window
             builder.AppendLine("- " + note);
         }
         builder.AppendLine();
-        builder.AppendLine("Registro: " + log.LogDirectory);
+        builder.AppendLine(CanonSetupHelper.BuildHint());
+        builder.AppendLine();
+        builder.AppendLine("Driver oficial TS5151: " + CanonSetupHelper.DriverPageUrl);
+        builder.AppendLine("Registro: " + _log.LogDirectory);
         ReportBox.Text = builder.ToString();
     }
+
+    private void OnRefresh(object sender, RoutedEventArgs e)
+    {
+        _scanner.RefreshDevices();
+        RenderReport();
+    }
+
+    private void OnPick(object sender, RoutedEventArgs e)
+    {
+        if (_pickCommand?.CanExecute(null) == true)
+        {
+            _pickCommand.Execute(null);
+        }
+
+        RenderReport();
+    }
+
+    private void OnSelector(object sender, RoutedEventArgs e)
+    {
+        if (!CanonSetupHelper.TryOpenNetworkSelector())
+        {
+            if (MessageBox.Show(
+                    "No está instalado el Selector de escáner de red de Canon (viene con el MP Driver).\n\n¿Abrir la página de descarga oficial?",
+                    "Selector de red Canon",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                CanonSetupHelper.OpenDriverPage();
+            }
+        }
+    }
+
+    private void OnDriver(object sender, RoutedEventArgs e) => CanonSetupHelper.OpenDriverPage();
 
     private void OnTestScan(object sender, RoutedEventArgs e)
     {

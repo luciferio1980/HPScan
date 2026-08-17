@@ -133,15 +133,12 @@ public sealed partial class MainViewModel : ObservableObject
         RefreshScannerState();
         if (SelectedDevice is null)
         {
-            ErrorBanner = """
-                No se ha detectado el escáner del PIXMA TS5151.
-
-                1. Enciende la impresora.
-                2. USB bien conectado, o el PC en la misma red Wi-Fi.
-                3. Instala el MP Driver oficial de la serie TS5100 (no basta con añadir solo la impresora).
-                4. En Windows: Configuración → Bluetooth e dispositivos → Impresoras y escáneres. Debe aparecer un escáner (a menudo "Canon TS5100 series").
-                5. Cierra IJ Scan Utility y pulsa Actualizar dispositivos (F5).
-                """;
+            ErrorBanner =
+                "No se ha detectado el escáner del PIXMA TS5151."
+                + Environment.NewLine + Environment.NewLine
+                + CanonSetupHelper.BuildHint()
+                + Environment.NewLine + Environment.NewLine
+                + "Instala el MP Driver de la serie TS5100 (no basta con que imprima). En Wi-Fi abre el Selector de red Canon, marca el TS5100 y pulsa OK. Luego Reintentar o Elegir escáner de Windows.";
         }
         else
         {
@@ -163,15 +160,7 @@ public sealed partial class MainViewModel : ObservableObject
             if (_scanner.SelectedDevice is null)
             {
                 ShowScannerError(new ScannerException(
-                    """
-                    No se ha detectado el escáner del PIXMA TS5151.
-
-                    1. Enciende la impresora.
-                    2. USB bien conectado, o el PC en la misma red Wi-Fi.
-                    3. Instala el MP Driver oficial de la serie TS5100 (no basta con añadir solo la impresora).
-                    4. En Windows: Configuración → Impresoras y escáneres. Debe aparecer un escáner, no solo la impresora.
-                    5. Cierra IJ Scan Utility y pulsa Actualizar dispositivos (F5).
-                    """));
+                    "No se ha detectado el escáner del PIXMA TS5151. Instala el MP Driver de la serie TS5100, y en Wi-Fi usa el Selector de red Canon. Luego pulsa Reintentar o Elegir escáner de Windows."));
                 return;
             }
         }
@@ -470,9 +459,10 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenDiagnostics()
     {
-        var window = new DiagnosticsWindow(_scanner, _log, ScanCommand);
+        var window = new DiagnosticsWindow(_scanner, _log, ScanCommand, PickWindowsScannerCommand);
         window.Owner = Application.Current.MainWindow;
         window.ShowDialog();
+        RefreshScannerState();
     }
 
     [RelayCommand]
@@ -481,6 +471,60 @@ public sealed partial class MainViewModel : ObservableObject
         var window = new HelpWindow();
         window.Owner = Application.Current.MainWindow;
         window.ShowDialog();
+    }
+
+    [RelayCommand]
+    private void OpenCanonDriver() => CanonSetupHelper.OpenDriverPage();
+
+    [RelayCommand]
+    private void OpenWindowsPrinters() => CanonSetupHelper.OpenWindowsPrinters();
+
+    [RelayCommand]
+    private void OpenNetworkSelector()
+    {
+        if (CanonSetupHelper.TryOpenNetworkSelector())
+        {
+            _dialogs.Info(
+                "Selector de red Canon",
+                "En IJ Network Scanner Selector EX marca el Canon TS5100 series y pulsa OK.\n\nDespués vuelve aquí y pulsa Actualizar dispositivos (F5).");
+            return;
+        }
+
+        if (_dialogs.Confirm(
+                "Selector de red Canon",
+                "No está instalado el Selector de escáner de red de Canon (viene con el MP Driver de la serie TS5100).\n\n¿Abrir la página de descarga oficial?"))
+        {
+            CanonSetupHelper.OpenDriverPage();
+        }
+    }
+
+    [RelayCommand]
+    private void PickWindowsScanner()
+    {
+        try
+        {
+            var picked = _scanner.PickInteractively();
+            RefreshScannerState();
+            if (picked is null)
+            {
+                ErrorBanner =
+                    "Windows no ha mostrado ningún escáner. Instala el MP Driver de la serie TS5100 (no basta con añadir la impresora) y, en Wi-Fi, abre el Selector de red Canon.";
+                return;
+            }
+
+            ErrorBanner = "";
+            StatusText = "Escáner seleccionado: " + picked.DisplayName;
+        }
+        catch (Exception ex)
+        {
+            ShowScannerError(ex is ScannerException scanner
+                ? scanner
+                : new ScannerException(
+                    "Windows no ha podido abrir el selector de escáneres. Instala el MP Driver oficial de la serie TS5100.",
+                    ex.ToString(),
+                    canRetry: true,
+                    inner: ex));
+        }
     }
 
     [RelayCommand]
@@ -834,7 +878,7 @@ public sealed partial class MainViewModel : ObservableObject
             message += Environment.NewLine + Environment.NewLine + "Detalle técnico guardado en el registro.";
         }
 
-        ErrorBanner = message.ReplaceLineEndings(" ").Trim();
+        ErrorBanner = message.Trim();
         if (_dialogs.ConfirmRetry("Escáner", message + Environment.NewLine + Environment.NewLine + "Pulsa Aceptar para reintentar."))
         {
             _ = ScanAsync();

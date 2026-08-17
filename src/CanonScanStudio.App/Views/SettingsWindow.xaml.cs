@@ -1,4 +1,5 @@
 using System.Windows;
+using CanonScanStudio.App.Services;
 using CanonScanStudio.Infrastructure;
 using CanonScanStudio.Models;
 using CanonScanStudio.Services;
@@ -34,6 +35,25 @@ public partial class SettingsWindow : Window
         RestoreBox.IsChecked = settings.Current.RestoreLastSession;
         ConfirmBox.IsChecked = settings.Current.ConfirmPageDelete;
         DetailsBox.IsChecked = settings.Current.ShowDetailedErrors;
+    }
+
+    private void OnDriver(object sender, RoutedEventArgs e) => CanonSetupHelper.OpenDriverPage();
+
+    private void OnPrinters(object sender, RoutedEventArgs e) => CanonSetupHelper.OpenWindowsPrinters();
+
+    private void OnSelector(object sender, RoutedEventArgs e)
+    {
+        if (!CanonSetupHelper.TryOpenNetworkSelector())
+        {
+            if (MessageBox.Show(
+                    "No está instalado el Selector de escáner de red de Canon (viene con el MP Driver).\n\n¿Abrir la página de descarga oficial?",
+                    "Selector de red Canon",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes)
+            {
+                CanonSetupHelper.OpenDriverPage();
+            }
+        }
     }
 
     private void OnBrowse(object sender, RoutedEventArgs e)

@@ -13,13 +13,18 @@
 
 Windows puede imprimir y aun así **no publicar el escáner**. Canon Scan Studio necesita el dispositivo de **escaneo** (WIA, TWAIN o Windows Scan), no solo la cola de impresión.
 
+Driver oficial del PIXMA TS5151 (elige **MP Drivers** de la serie TS5100, no un paquete solo de impresora):
+
+https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers&detailId=tcm:86-1604954&productTcmUri=tcm:86-1604881
+
 1. La impresora debe estar **encendida**.
 2. USB bien conectado, o el PC en la **misma red Wi-Fi**.
-3. Instala el **MP Driver** oficial de la serie TS5100 (incluye el escáner). Esta app no lo incluye.
-4. En Windows: *Configuración → Bluetooth e dispositivos → Impresoras y escáneres*. Debe verse un **escáner**, a menudo `Canon TS5100 series` o `TS5100 series_<MAC>`, no exactamente TS5151.
-5. Pulsa **F5** / *Actualizar dispositivos*.
-6. Cierra IJ Scan Utility, Fax y Escáner u otra app que tenga abierto el dispositivo.
-7. Configuración → Diagnóstico: ahí se listan los dispositivos que Windows sí ve.
+3. Instala el **MP Driver** de esa página (instalador completo de Canon). Esta app no lo incluye ni puede detectarlo sin él.
+4. **Wi-Fi:** después del driver, abre **IJ Network Scanner Selector EX** (viene con el MP Driver), marca `Canon TS5100 series` y pulsa **OK**. Sin este paso Windows suele ver la impresora y no el escáner.
+5. En Windows: *Configuración → Bluetooth e dispositivos → Impresoras y escáneres*. Debe verse un **escáner**, a menudo `Canon TS5100 series` o `TS5100 series_<MAC>`, no exactamente TS5151.
+6. En Canon Scan Studio: **Elegir escáner de Windows**, o **F5** / *Actualizar dispositivos*.
+7. Cierra IJ Scan Utility, Fax y Escáner u otra app que tenga abierto el dispositivo.
+8. *Ajustes → Más* (diagnóstico): ahí se listan los dispositivos que Windows sí ve y si el MP Driver parece instalado.
 
 ## No se puede acceder al escáner
 
@@ -30,7 +35,7 @@ Causas habituales de WIA:
 - Pérdida de comunicación USB/Wi-Fi.
 - Controlador inestable tras un fallo anterior: apaga y enciende el Canon, espera 10 s.
 
-Pulsa **Reintentar**. Las páginas ya escaneadas **no se pierden**.
+Pulsa **Reintentar** (vuelve a buscar dispositivos). Las páginas ya escaneadas **no se pierden**.
 
 ## El escaneo por Wi-Fi no permite brillo o 75 dpi
 

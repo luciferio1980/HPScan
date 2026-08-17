@@ -74,6 +74,24 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
         }
     }
 
+    public ScanDevice? PickInteractively()
+    {
+        if (!IsPlatformSupported)
+        {
+            return null;
+        }
+
+        try
+        {
+            return _sta.Invoke(PickInteractivelyCore);
+        }
+        catch (Exception ex)
+        {
+            _log.Warn("El selector WIA de Windows no está disponible: " + ex.Message);
+            throw WiaErrorMapper.Map(ex);
+        }
+    }
+
     public ScanResult Scan(ScanRequest request)
     {
         EnsureWindows();
@@ -462,6 +480,41 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
         }
 
         throw last ?? new ScannerException("El controlador WIA no ha podido transferir la imagen.", canRetry: true);
+    }
+
+    private ScanDevice? PickInteractivelyCore()
+    {
+        object? dialog = null;
+        object? info = null;
+        try
+        {
+            dialog = WiaCom.Create("WIA.CommonDialog");
+            info = WiaCom.Call(dialog, "ShowSelectDevice", WiaConstants.ScannerDeviceType, true, false);
+            if (info is null)
+            {
+                return null;
+            }
+
+            var identity = ReadIdentity(info, 0);
+            _log.Info($"WIA selector de Windows: '{identity.Name}' id={identity.Id}");
+            return new ScanDevice
+            {
+                Id = identity.Id,
+                Name = identity.Name,
+                Interface = ScannerInterfaceKind.Wia,
+                Connection = DeviceMatcher.InferConnection(identity.Name, identity.Port),
+                IsCanonTs5100Family = DeviceMatcher.IsCanonTs5100Family(identity.Name),
+                Manufacturer = identity.Manufacturer,
+                Port = identity.Port,
+                StatusText = "Detectado",
+                IsAvailable = true
+            };
+        }
+        finally
+        {
+            WiaCom.Release(info);
+            WiaCom.Release(dialog);
+        }
     }
 
     private static IReadOnlyList<ColorMode> ReadColorModes(object itemProps)

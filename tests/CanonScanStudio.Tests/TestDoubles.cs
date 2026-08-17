@@ -27,6 +27,7 @@ internal sealed class MockScannerBackend : IScannerBackend
     public ScanCapabilities? Capabilities { get; init; }
     public Func<ScanRequest, ScanResult>? ScanHandler { get; init; }
     public bool ThrowOnScan { get; init; }
+    public ScanDevice? PickedDevice { get; init; }
 
     public IReadOnlyList<ScanDevice> ListDevices() => Devices;
     public ScanCapabilities GetCapabilities(string deviceId) =>
@@ -52,6 +53,7 @@ internal sealed class MockScannerBackend : IScannerBackend
     }
 
     public bool CanConnect(string deviceId) => Devices.Any(d => d.Id == deviceId);
+    public ScanDevice? PickInteractively() => PickedDevice;
 }
 
 internal sealed class TempSettingsService : ISettingsService

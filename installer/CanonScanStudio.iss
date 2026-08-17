@@ -2,7 +2,7 @@
 ; No instala controladores de Canon.
 
 #define MyAppName "Canon Scan Studio"
-#define MyAppVersion "1.0.3"
+#define MyAppVersion "1.0.4"
 #define MyAppPublisher "Canon Scan Studio"
 #define MyAppExeName "CanonScanStudio.exe"
 

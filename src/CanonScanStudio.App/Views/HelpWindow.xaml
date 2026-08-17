@@ -5,8 +5,11 @@
         Height="460" Width="560"
         WindowStartupLocation="CenterOwner">
     <DockPanel Margin="20">
-        <Button DockPanel.Dock="Bottom" Content="Cerrar" Style="{StaticResource PrimaryButton}" HorizontalAlignment="Right" IsCancel="True" Click="OnClose" />
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,12,0,0">
+            <Button Content="Descargar driver Canon" Style="{StaticResource SecondaryButton}" Click="OnDriver" Margin="0,0,8,0" />
+            <Button Content="Cerrar" Style="{StaticResource PrimaryButton}" IsCancel="True" Click="OnClose" />
+        </StackPanel>
         <TextBox IsReadOnly="True" TextWrapping="Wrap" BorderThickness="0" FontSize="13"
-                 Text="Canon Scan Studio controla el escáner a través de WIA, TWAIN y la API de escaneo de Windows. No utiliza una API privada de Canon.&#x0a;&#x0a;1. Enciende el PIXMA TS5151.&#x0a;2. Conéctalo por USB o instálalo en la misma red Wi-Fi con el MP Driver oficial (serie TS5100). Que Windows imprima no basta: tiene que aparecer un escáner.&#x0a;3. Pulsa F5 si el dispositivo no aparece. Puede mostrarse como Canon TS5100 series.&#x0a;4. Elige resolución y color, pulsa Escanear (F6).&#x0a;5. Edita, reordena y pulsa Guardar para crear un PDF. Pulsa Añadir página (o la tarjeta +) para escanear otra hoja. Girar izquierda/derecha rota la página seleccionada 90°.&#x0a;&#x0a;Atajos: Ctrl+N nueva sesión, Ctrl+S guardar, Ctrl+Z deshacer, Supr eliminar página.&#x0a;&#x0a;Esta aplicación no instala controladores de Canon. Si Windows no ve el escáner, instala el software oficial de la serie TS5100." />
+                 Text="Canon Scan Studio controla el escáner a través de WIA, TWAIN y la API de escaneo de Windows. No utiliza una API privada de Canon.&#x0a;&#x0a;1. Enciende el PIXMA TS5151.&#x0a;2. Instala el MP Driver oficial de la serie TS5100 (página de Canon España, tipo Controladores). Que Windows imprima no basta: tiene que aparecer un escáner.&#x0a;3. USB, o la misma red Wi-Fi. En Wi-Fi abre IJ Network Scanner Selector EX, marca TS5100 series y pulsa OK.&#x0a;4. Pulsa F5, o Elegir escáner de Windows, si el dispositivo no aparece. Suele mostrarse como Canon TS5100 series, no TS5151.&#x0a;5. Elige resolución y color, pulsa Escanear (F6).&#x0a;6. Edita, reordena y pulsa Guardar para crear un PDF. Pulsa Añadir página (o la tarjeta +) para escanear otra hoja. Girar izquierda/derecha rota la página seleccionada 90°.&#x0a;&#x0a;Atajos: Ctrl+N nueva sesión, Ctrl+S guardar, Ctrl+Z deshacer, Supr eliminar página.&#x0a;&#x0a;Esta aplicación no instala ni redistribuye controladores de Canon." />
     </DockPanel>
 </Window>

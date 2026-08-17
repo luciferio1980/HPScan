@@ -125,6 +125,8 @@ public sealed class WinRtScannerBackend : IScannerBackend
         }
     }
 
+    public ScanDevice? PickInteractively() => null;
+
     public ScanResult Scan(ScanRequest request)
     {
         request.Progress?.Report(new ScanProgress(10, "Abriendo el escáner de Windows..."));

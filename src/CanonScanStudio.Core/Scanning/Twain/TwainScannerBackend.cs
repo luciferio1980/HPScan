@@ -69,6 +69,8 @@ public sealed class TwainScannerBackend : IScannerBackend
         return TwainNativeSession.Scan(request, _log);
     }
 
+    public ScanDevice? PickInteractively() => null;
+
     private void EnsureWindows()
     {
         if (!IsPlatformSupported)

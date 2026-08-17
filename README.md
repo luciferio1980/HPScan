@@ -8,7 +8,7 @@ Paquete listo para Windows 10/11 **64 bits**. No hace falta instalar .NET:
 
 **https://github.com/luciferio1980/HPScan/releases/latest**
 
-Descarga la versión **1.0.3 o superior**:
+Descarga la versión **1.0.4 o superior**:
 
 1. **CanonScanStudio-Setup.exe** — instalador con acceso directo
 2. **CanonScanStudio-Portable-win-x64.zip** — descomprime la carpeta y abre `CanonScanStudio.exe`
@@ -35,14 +35,15 @@ Esta aplicación **no instala ni redistribuye** controladores de Canon.
 
 ## Cómo instalar el controlador de Canon
 
-1. Entra en la web de soporte de Canon y busca **PIXMA TS5151** / **TS5100 series**.
-2. Descarga e instala el **MP Driver** para Windows.
-3. Conecta el equipo por USB o añade la impresora en la misma red Wi-Fi.
+1. Abre la página oficial del PIXMA TS5151 y descarga el **MP Driver** (serie TS5100):
+   https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers&detailId=tcm:86-1604954&productTcmUri=tcm:86-1604881
+2. Instálalo con la impresora encendida. No basta con añadir solo la impresora en Windows.
+3. **Wi-Fi:** abre **IJ Network Scanner Selector EX**, marca el TS5100 y pulsa OK.
 4. En Windows, el escáner suele aparecer como:
    - USB: `Canon TS5100 series`
    - Red: `TS5100 series_<MAC>`
 
-No hace falta que el nombre sea exactamente `Canon PIXMA TS5151`.
+No hace falta que el nombre sea exactamente `Canon PIXMA TS5151`. En la app puedes pulsar **Elegir escáner de Windows** o **Descargar MP Driver Canon**.
 
 ## Cómo conectar el TS5151
 

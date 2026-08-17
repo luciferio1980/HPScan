@@ -77,6 +77,10 @@
                         <TextBlock Text="Escáner" Style="{StaticResource FieldLabel}" />
                         <ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}" DisplayMemberPath="DisplayName" />
                         <Button Content="Actualizar dispositivos" Style="{StaticResource LinkButton}" Command="{Binding RefreshDevicesCommand}" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                        <Button Content="Elegir escáner de Windows" Style="{StaticResource LinkButton}" Command="{Binding PickWindowsScannerCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
+                        <Button Content="Selector de red Canon (Wi-Fi)" Style="{StaticResource LinkButton}" Command="{Binding OpenNetworkSelectorCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
+                        <Button Content="Descargar MP Driver Canon" Style="{StaticResource LinkButton}" Command="{Binding OpenCanonDriverCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
+                        <Button Content="Impresoras y escáneres" Style="{StaticResource LinkButton}" Command="{Binding OpenWindowsPrintersCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
 
                         <TextBlock Text="Fuente" Style="{StaticResource FieldLabel}" />
                         <ComboBox SelectedIndex="0" IsEnabled="True">
@@ -286,10 +290,19 @@
         </Grid>
 
         <Border Grid.Row="2" Background="#FFF8E1" Padding="12,8" Visibility="{Binding ErrorBanner, Converter={StaticResource NullVis}}">
-            <DockPanel>
-                <Button DockPanel.Dock="Right" Content="Reintentar" Style="{StaticResource PrimaryButton}" Command="{Binding ScanCommand}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
                 <TextBlock Text="{Binding ErrorBanner}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
-            </DockPanel>
+                <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Button Content="Reintentar" Style="{StaticResource PrimaryButton}" Command="{Binding RefreshDevicesCommand}" Margin="0,4,8,4" />
+                    <Button Content="Elegir escáner de Windows" Style="{StaticResource SecondaryButton}" Command="{Binding PickWindowsScannerCommand}" Margin="0,4,8,4" />
+                    <Button Content="Selector de red Canon" Style="{StaticResource SecondaryButton}" Command="{Binding OpenNetworkSelectorCommand}" Margin="0,4,8,4" />
+                    <Button Content="Descargar driver Canon" Style="{StaticResource SecondaryButton}" Command="{Binding OpenCanonDriverCommand}" Margin="0,4,0,4" />
+                </WrapPanel>
+            </Grid>
         </Border>
 
         <Border Grid.Row="3" Background="White" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="0,1,0,0">

@@ -1,4 +1,5 @@
 using System.Windows;
+using CanonScanStudio.App.Services;
 using CanonScanStudio.App.ViewModels;
 using CanonScanStudio.Models;
 
@@ -40,6 +41,30 @@ public partial class WelcomeWindow : Window
     }
 
     private async void OnSearch(object sender, RoutedEventArgs e) => await SearchAsync();
+
+    private void OnDriver(object sender, RoutedEventArgs e) => CanonSetupHelper.OpenDriverPage();
+
+    private void OnPick(object sender, RoutedEventArgs e)
+    {
+        if (_main.PickWindowsScannerCommand.CanExecute(null))
+        {
+            _main.PickWindowsScannerCommand.Execute(null);
+        }
+
+        DeviceList.ItemsSource = _main.Devices;
+        DeviceList.SelectedItem = _main.SelectedDevice ?? _main.Devices.FirstOrDefault();
+        StatusLabel.Text = _main.SelectedDevice is null
+            ? "No hemos encontrado ningún escáner."
+            : "Escáner encontrado";
+    }
+
+    private void OnSelector(object sender, RoutedEventArgs e)
+    {
+        if (_main.OpenNetworkSelectorCommand.CanExecute(null))
+        {
+            _main.OpenNetworkSelectorCommand.Execute(null);
+        }
+    }
 
     private void OnSkip(object sender, RoutedEventArgs e)
     {
