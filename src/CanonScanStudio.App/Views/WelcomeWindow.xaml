@@ -1,0 +1,21 @@
+<Window x:Class="CanonScanStudio.App.Views.WelcomeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Bienvenido a Canon Scan Studio"
+        Height="420" Width="520"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize">
+    <DockPanel Margin="24">
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
+            <Button Content="Buscar de nuevo" Style="{StaticResource SecondaryButton}" Click="OnSearch" Margin="0,0,8,0" />
+            <Button Content="Continuar sin escáner" Style="{StaticResource SecondaryButton}" Click="OnSkip" Margin="0,0,8,0" />
+            <Button Content="Seleccionar" Style="{StaticResource PrimaryButton}" Click="OnSelect" />
+        </StackPanel>
+        <StackPanel>
+            <TextBlock Text="Bienvenido a Canon Scan Studio" FontSize="20" FontWeight="SemiBold" />
+            <TextBlock x:Name="StatusLabel" Text="Buscando escáneres..." Margin="0,12,0,12" Foreground="#6B6B6B" />
+            <ListBox x:Name="DeviceList" Height="180" DisplayMemberPath="DisplayName" />
+            <TextBlock Text="El PIXMA TS5151 puede aparecer como Canon TS5100 series." Margin="0,12,0,0" Foreground="#6B6B6B" TextWrapping="Wrap" />
+        </StackPanel>
+    </DockPanel>
+</Window>

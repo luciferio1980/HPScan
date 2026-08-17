@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>CanonScanStudio</RootNamespace>
+    <AssemblyName>CanonScanStudio.Core</AssemblyName>
+    <Description>Lógica de Canon Scan Studio: sesiones, edición, PDF, OCR y abstracción del escáner.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="PdfPig" Version="0.1.9" />
+    <PackageReference Include="QuestPDF" Version="2024.12.3" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageReference Include="Tesseract" Version="5.2.0" />
+  </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="CanonScanStudio.Tests" />
+    </ItemGroup>
+</Project>

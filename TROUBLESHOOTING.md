@@ -1,0 +1,58 @@
+# Solución de problemas — Canon Scan Studio y PIXMA TS5151
+
+## El programa no detecta el escáner
+
+Mensaje: *Canon PIXMA TS5151 no detectado...*
+
+1. La impresora debe estar **encendida**.
+2. USB bien conectado, o el equipo en la **misma red Wi-Fi**.
+3. Instala el **MP Driver** oficial de la serie TS5100. Esta app no lo incluye.
+4. En Windows, el nombre puede ser `Canon TS5100 series` o `TS5100 series_<MAC>`, no exactamente TS5151.
+5. Pulsa **F5** / *Actualizar dispositivos*.
+6. Cierra IJ Scan Utility, Fax y Escáner u otra app que tenga abierto el dispositivo.
+
+## No se puede acceder al escáner
+
+Causas habituales de WIA:
+
+- El dispositivo está ocupado (`busy` / `locked`).
+- Tapa abierta.
+- Pérdida de comunicación USB/Wi-Fi.
+- Controlador inestable tras un fallo anterior: apaga y enciende el Canon, espera 10 s.
+
+Pulsa **Reintentar**. Las páginas ya escaneadas **no se pierden**.
+
+## El escaneo por Wi-Fi no permite brillo o 75 dpi
+
+Es una limitación del **controlador WIA de Canon en red**, no de esta aplicación. En red Canon documenta 150/300/600 dpi y no expone brillo/contraste. La app aplica exposición después, sobre la imagen recibida.
+
+## 1200 DPI no aparece
+
+El WIA de TS5100 suele topar en 600 dpi aunque el CIS óptico sea 1200×2400. Si el driver no publica 1200, no se ofrece. ScanGear/TWAIN a veces permite más: cambia la interfaz a TWAIN en Configuración si tienes ScanGear instalado.
+
+## TWAIN no lista el dispositivo
+
+- Falta `TWAINDSM.dll` o el origen ScanGear.
+- Reinstala el MP Driver.
+- Algunas fuentes TWAIN antiguas son de 32 bits; esta app es 64 bits y usa el DSM 64 bits cuando existe. Si TWAIN falla, usa WIA (recomendado).
+
+## La imagen sale negra o en blanco
+
+- Cierra la tapa.
+- Coloca el original hacia el cristal, alineado con la marca.
+- Prueba Color 300 dpi A4.
+- En Diagnóstico, pulsa *Realizar escaneo de prueba*.
+
+## OCR no funciona
+
+El escaneo no depende de Internet ni de OCR. Si falta Tesseract/`tessdata`, el PDF de imagen sigue siendo válido. Ejecuta `scripts/download-tessdata.ps1` o copia `spa.traineddata` y `eng.traineddata`.
+
+## Dónde están los registros
+
+`%LocalAppData%\CanonScanStudio\logs`
+
+Configuración → Diagnóstico → **Exportar registro**. No se muestran códigos del tipo `COMException 0x80210015` en la interfaz.
+
+## La aplicación se cerró y perdí el trabajo
+
+Si estaba activa la recuperación, al reabrir (con *Abrir automáticamente la última sesión*) se restauran las páginas originales de `%LocalAppData%\CanonScanStudio\recovery`.

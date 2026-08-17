@@ -1,1 +1,105 @@
-# HPScan
+# Canon Scan Studio
+
+Aplicación de escritorio para Windows 10/11 que escanea, previsualiza, edita, organiza y guarda documentos usando un **Canon PIXMA TS5151** (serie TS5100).
+
+No copia software de HP ni usa APIs privadas de Canon. El escaneo real se hace con las interfaces estándar de Windows:
+
+1. **WIA** (Windows Image Acquisition) — backend principal
+2. **TWAIN 1.9** (ScanGear del MP Driver) — alternativa si WIA no publica el dispositivo
+
+## Requisitos
+
+- Windows 10 64 bits o Windows 11 64 bits
+- [.NET 8 Desktop Runtime](https://dotnet.microsoft.com/download/dotnet/8.0) (incluido si publicas self-contained)
+- Canon PIXMA TS5151 encendido
+- **MP Driver oficial de Canon** para la serie TS5100 (WIA y/o ScanGear)
+
+Esta aplicación **no instala ni redistribuye** controladores de Canon.
+
+## Cómo instalar el controlador de Canon
+
+1. Entra en la web de soporte de Canon y busca **PIXMA TS5151** / **TS5100 series**.
+2. Descarga e instala el **MP Driver** para Windows.
+3. Conecta el equipo por USB o añade la impresora en la misma red Wi-Fi.
+4. En Windows, el escáner suele aparecer como:
+   - USB: `Canon TS5100 series`
+   - Red: `TS5100 series_<MAC>`
+
+No hace falta que el nombre sea exactamente `Canon PIXMA TS5151`.
+
+## Cómo conectar el TS5151
+
+- **USB:** cable a un puerto USB del PC, impresora encendida.
+- **Wi-Fi:** el Canon debe estar en la misma red. Windows tiene que verlo como dispositivo de escaneo WIA. No se implementa el protocolo propietario de Canon.
+
+Comprueba que *Fax y Escáner de Windows* o el propio Canon Scan Studio detectan el dispositivo. Si otra aplicación (IJ Scan Utility) tiene el escáner abierto, ciérrala.
+
+## Ejecutar
+
+En un PC Windows con el SDK o el runtime:
+
+```powershell
+dotnet restore
+dotnet run --project src/CanonScanStudio.App/CanonScanStudio.App.csproj -c Release
+```
+
+## Compilar
+
+```powershell
+dotnet build CanonScanStudio.sln -c Release
+dotnet test tests/CanonScanStudio.Tests/CanonScanStudio.Tests.csproj
+```
+
+La biblioteca `CanonScanStudio.Core` (WIA/TWAIN, PDF, edición) se puede compilar también en Linux para tests. La interfaz WPF (`CanonScanStudio.App`) **solo se compila en Windows**.
+
+## Publicar
+
+Framework-dependent:
+
+```powershell
+dotnet publish src/CanonScanStudio.App/CanonScanStudio.App.csproj -c Release -r win-x64 --self-contained false -o artifacts/win-x64
+```
+
+Autocontenida (no requiere runtime .NET instalado):
+
+```powershell
+dotnet publish src/CanonScanStudio.App/CanonScanStudio.App.csproj -c Release -r win-x64 --self-contained true -o artifacts/win-x64
+```
+
+## Crear el instalador
+
+1. Publica a `artifacts/win-x64` (paso anterior).
+2. Instala [Inno Setup 6](https://jrsoftware.org/isinfo.php).
+3. Compila `installer/CanonScanStudio.iss`.
+4. El resultado es `installer/Output/CanonScanStudio-Setup.exe`.
+
+El instalador crea acceso directo y permite desinstalar. No toca controladores de Canon.
+
+## OCR
+
+El OCR es opcional y local (Tesseract). Coloca los `*.traineddata` en `tessdata/` junto al ejecutable o en `%LocalAppData%\CanonScanStudio\tessdata`.
+
+```powershell
+./scripts/download-tessdata.ps1
+```
+
+Sin estos archivos el escaneo y el PDF de imagen siguen funcionando. El PDF con texto seleccionable requiere OCR.
+
+## Arquitectura
+
+Ver [ARCHITECTURE.md](ARCHITECTURE.md).
+
+## Solución de problemas
+
+Ver [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
+
+## Criterio de uso
+
+1. Encender el TS5151.
+2. Abrir Canon Scan Studio.
+3. El programa detecta `Canon TS5100 series` (o similar).
+4. A4, 300 DPI, Color.
+5. **Escanear** — el hardware realiza el escaneo (no hay simulación).
+6. Recortar, girar, brillo/contraste.
+7. Escanear otra página, reordenar miniaturas.
+8. **Guardar** → PDF de varias páginas.
