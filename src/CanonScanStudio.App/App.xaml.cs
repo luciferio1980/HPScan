@@ -2,10 +2,12 @@ using System.IO;
 using System.Text;
 using System.Windows;
 using System.Windows.Threading;
+using CanonScanStudio.App.Scanning;
 using CanonScanStudio.App.Services;
 using CanonScanStudio.App.ViewModels;
 using CanonScanStudio.App.Views;
 using CanonScanStudio.Infrastructure;
+using CanonScanStudio.Scanning;
 using CanonScanStudio.Services;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,6 +37,7 @@ public partial class App : Application
     {
         var collection = new ServiceCollection();
         collection.AddCanonScanStudio();
+        collection.AddSingleton<IScannerBackend, WinRtScannerBackend>();
         collection.AddSingleton<IUiDialogService, UiDialogService>();
         collection.AddSingleton<MainViewModel>();
         collection.AddSingleton<MainWindow>();

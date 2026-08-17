@@ -14,7 +14,23 @@ public static class DeviceMatcher
         "ts5150",
         "ts5100",
         "pixma ts51",
-        "canon ts51"
+        "canon ts51",
+        "ts51",
+        "5151"
+    ];
+
+    private static readonly string[] ScannerTokens =
+    [
+        "scan",
+        "escáner",
+        "escaner",
+        "wia",
+        "escl",
+        "wsd",
+        "scangear",
+        "pixma",
+        "flatbed",
+        "platina"
     ];
 
     public static bool IsCanonTs5100Family(string? name)
@@ -30,6 +46,22 @@ public static class DeviceMatcher
 
     public static bool IsScannerName(string? name) => !string.IsNullOrWhiteSpace(name);
 
+    public static bool LooksLikeScanner(string? name)
+    {
+        if (IsCanonTs5100Family(name))
+        {
+            return true;
+        }
+
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return false;
+        }
+
+        var normalized = Normalize(name);
+        return ScannerTokens.Any(token => normalized.Contains(token, StringComparison.Ordinal));
+    }
+
     public static int Score(ScanDevice device)
     {
         var score = 0;
@@ -42,6 +74,7 @@ public static class DeviceMatcher
 
         if (name.Contains("canon", StringComparison.Ordinal)) score += 20;
         if (device.Interface == ScannerInterfaceKind.Wia) score += 10;
+        if (device.Interface == ScannerInterfaceKind.WindowsScan) score += 8;
         if (device.IsAvailable) score += 5;
         if (device.Connection == ScannerConnectionKind.Usb) score += 2;
         return score;

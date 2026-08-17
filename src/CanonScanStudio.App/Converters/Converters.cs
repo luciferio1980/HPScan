@@ -52,6 +52,7 @@ public sealed class EnumDisplayConverter : IValueConverter
         ScannerInterfaceKind.Auto => "Automático",
         ScannerInterfaceKind.Wia => "WIA",
         ScannerInterfaceKind.Twain => "TWAIN",
+        ScannerInterfaceKind.WindowsScan => "Windows",
         int dpi => $"{dpi} DPI",
         _ => value?.ToString() ?? ""
     };
