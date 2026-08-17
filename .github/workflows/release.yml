@@ -84,36 +84,60 @@ jobs:
           if-no-files-found: error
 
       - name: Publish GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v1.0.10
-          name: Canon Scan Studio 1.0.10
-          make_latest: true
-          fail_on_unmatched_files: true
-          files: |
-            artifacts/CanonScanStudio-Portable-win-x64.zip
-            artifacts/CanonScanStudio-Setup.exe
-          body: |
-            Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
-
-            ## Novedades 1.0.10
-            - La vista previa convierte el JPEG del escáner a PNG para que se vea en el recuadro.
-            - Doble clic para recortar ya no cierra la aplicación si la imagen falla al cargarse.
-            - **Resolución** muestra 300 DPI (o la configurada) y **Color** arranca en Color.
-            - El zoom por defecto es **100 %**. *Ajustar* sigue encajando las páginas en la ventana.
-
-            ## Qué descargar
-            - **CanonScanStudio-Setup.exe** — instalador con acceso directo
-            - **CanonScanStudio-Portable-win-x64.zip** — carpeta portable: descomprime y abre `CanonScanStudio.exe`
-
-            ## Uso
-            1. Enciende el Canon PIXMA TS5151.
-            2. Pulsa **Escanear** para cada hoja.
-            3. Doble clic en una página para recortarla.
-            4. **Organizar** para reordenar. **Guardar** para el PDF.
-
-            Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas*.
-
-            Esta versión no incluye controladores de Canon.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: pwsh
+        run: |
+          $notes = @(
+            "Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.",
+            "",
+            "## Novedades 1.0.10",
+            "- La vista previa convierte el JPEG del escáner a PNG para que se vea en el recuadro.",
+            "- Doble clic para recortar ya no cierra la aplicación si la imagen falla al cargarse.",
+            "- **Resolución** muestra 300 DPI (o la configurada) y **Color** arranca en Color.",
+            "- El zoom por defecto es **100 %**. *Ajustar* sigue encajando las páginas en la ventana.",
+            "",
+            "## Qué descargar",
+            "- **CanonScanStudio-Setup.exe** — instalador con acceso directo",
+            "- **CanonScanStudio-Portable-win-x64.zip** — carpeta portable: descomprime y abre ``CanonScanStudio.exe``",
+            "",
+            "## Uso",
+            "1. Enciende el Canon PIXMA TS5151.",
+            "2. Pulsa **Escanear** para cada hoja.",
+            "3. Doble clic en una página para recortarla.",
+            "4. **Organizar** para reordenar. **Guardar** para el PDF.",
+            "",
+            "Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas*.",
+            "",
+            "Esta versión no incluye controladores de Canon."
+          ) -join "`n"
+          $notesPath = "artifacts/release-notes.md"
+          Set-Content -Path $notesPath -Value $notes -Encoding utf8NoBOM
+          $zip = "artifacts/CanonScanStudio-Portable-win-x64.zip"
+          $setup = "artifacts/CanonScanStudio-Setup.exe"
+          if (-not (Test-Path $zip) -or -not (Test-Path $setup)) {
+            throw "Missing release files."
+          }
+
+          $delay = 15
+          for ($i = 1; $i -le 6; $i++) {
+            Write-Host "GitHub release attempt $i..."
+            gh release view v1.0.10 *> $null
+            $exists = $LASTEXITCODE -eq 0
+            if ($exists) {
+              gh release edit v1.0.10 --title "Canon Scan Studio 1.0.10" --notes-file $notesPath --latest
+              if ($LASTEXITCODE -eq 0) {
+                gh release upload v1.0.10 $zip $setup --clobber
+              }
+            } else {
+              gh release create v1.0.10 $zip $setup --title "Canon Scan Studio 1.0.10" --notes-file $notesPath --latest
+            }
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Published v1.0.10."
+              exit 0
+            }
+            Write-Host "GitHub API failed (attempt $i). Waiting $delay seconds..."
+            Start-Sleep -Seconds $delay
+            $delay = [Math]::Min(90, $delay * 2)
+          }
+          throw "Could not publish GitHub release after retries."
