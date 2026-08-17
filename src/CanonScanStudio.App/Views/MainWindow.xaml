@@ -23,8 +23,10 @@
     <Window.Resources>
         <conv:BoolToVisibilityConverter x:Key="BoolVis" />
         <conv:BoolToVisibilityConverter x:Key="BoolVisInv" Invert="True" />
+        <conv:InvertBoolConverter x:Key="InvertBool" />
         <conv:NullToVisibilityConverter x:Key="NullVis" />
         <conv:EnumDisplayConverter x:Key="EnumDisplay" />
+        <conv:StatusBrushConverter x:Key="StatusBrush" />
     </Window.Resources>
     <Grid Background="{StaticResource WindowBg}">
         <Grid.RowDefinitions>
@@ -186,18 +188,18 @@
                         <CheckBox Content="Exposición automática" IsChecked="{Binding AutoExposure}" Margin="0,0,0,8" />
                         <TextBlock Text="Brillo" Style="{StaticResource FieldLabel}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource BoolVisInv}}" />
-                            <Slider Minimum="-100" Maximum="100" Value="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource BoolVisInv}}" />
+                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
+                            <Slider Minimum="-100" Maximum="100" Value="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
                         </DockPanel>
                         <TextBlock Text="Contraste" Style="{StaticResource FieldLabel}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource BoolVisInv}}" />
-                            <Slider Minimum="-100" Maximum="100" Value="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource BoolVisInv}}" />
+                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
+                            <Slider Minimum="-100" Maximum="100" Value="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
                         </DockPanel>
                         <TextBlock Text="Tonos medios / Gamma" Style="{StaticResource FieldLabel}" />
                         <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Gamma}" IsEnabled="{Binding AutoExposure, Converter={StaticResource BoolVisInv}}" />
-                            <Slider Minimum="-100" Maximum="100" Value="{Binding Gamma}" IsEnabled="{Binding AutoExposure, Converter={StaticResource BoolVisInv}}" />
+                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Gamma}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
+                            <Slider Minimum="-100" Maximum="100" Value="{Binding Gamma}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
                         </DockPanel>
                         <TextBlock Text="Los ajustes de exposición se aplican a la imagen después del escaneo." FontSize="10" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" Margin="0,6,0,0" />
 
@@ -275,7 +277,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding ScanCommand}" IsEnabled="{Binding IsScanning, Converter={StaticResource BoolVisInv}}" MinWidth="120">
+                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding ScanCommand}" IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}" MinWidth="120">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="+  " />
                             <TextBlock Text="Escanear" />

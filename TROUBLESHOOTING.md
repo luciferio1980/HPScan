@@ -1,5 +1,14 @@
 # Solución de problemas — Canon Scan Studio y PIXMA TS5151
 
+## El programa no se abre / se cierra al instante
+
+1. Usa Windows **10 u 11 de 64 bits**. No funciona en 32 bits ni en macOS/Linux.
+2. Si Windows muestra *Windows protegió tu PC* (SmartScreen): **Más información** → **Ejecutar de todas formas**. El ejecutable no está firmado.
+3. Si descargaste el ZIP portable, descomprímelo completo (no ejecutes desde dentro del ZIP) y abre `CanonScanStudio.exe`.
+4. Prueba el instalador (`CanonScanStudio-Setup.exe`) o, al contrario, la versión portable.
+5. Si aparece un cuadro de error, anota el mensaje. El detalle se guarda en `%LocalAppData%\CanonScanStudio\logs` (archivos `crash-*.log`).
+6. Desactiva temporalmente el antivirus si bloquea el `.exe` recién descargado.
+
 ## El programa no detecta el escáner
 
 Mensaje: *Canon PIXMA TS5151 no detectado...*

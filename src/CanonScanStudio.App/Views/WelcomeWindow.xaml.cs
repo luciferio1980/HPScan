@@ -17,17 +17,25 @@ public partial class WelcomeWindow : Window
 
     private async Task SearchAsync()
     {
-        StatusLabel.Text = "Buscando escáneres...";
-        await _main.RefreshDevicesAsync();
-        DeviceList.ItemsSource = _main.Devices;
-        if (_main.Devices.Count == 0)
+        try
         {
-            StatusLabel.Text = "No hemos encontrado ningún escáner.";
+            StatusLabel.Text = "Buscando escáneres...";
+            await _main.RefreshDevicesAsync();
+            DeviceList.ItemsSource = _main.Devices;
+            if (_main.Devices.Count == 0)
+            {
+                StatusLabel.Text = "No hemos encontrado ningún escáner.";
+            }
+            else
+            {
+                StatusLabel.Text = "Escáner encontrado";
+                DeviceList.SelectedItem = _main.SelectedDevice ?? _main.Devices.FirstOrDefault();
+            }
         }
-        else
+        catch (Exception)
         {
-            StatusLabel.Text = "Escáner encontrado";
-            DeviceList.SelectedItem = _main.SelectedDevice ?? _main.Devices.FirstOrDefault();
+            StatusLabel.Text = "No se ha podido buscar escáneres. Puedes continuar y reintentarlo después.";
+            DeviceList.ItemsSource = _main.Devices;
         }
     }
 

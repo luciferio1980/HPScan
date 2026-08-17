@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.0
-          name: Canon Scan Studio 1.0.0
+          tag_name: v1.0.1
+          name: Canon Scan Studio 1.0.1
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -95,6 +95,10 @@ jobs:
             artifacts/CanonScanStudio-Setup.exe
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
+
+            ## Corrección 1.0.1
+            - Corrige un fallo que impedía abrir la ventana principal (recurso WPF `StatusBrush` ausente).
+            - Muestra un mensaje y guarda un registro si el arranque falla.
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo
