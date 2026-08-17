@@ -5,10 +5,10 @@
     <Color x:Key="SecondaryButtonColor">#5A5A5A</Color>
     <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
     <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDarkColor}" />
-    <SolidColorBrush x:Key="WindowBg" Color="#F7F7F7" />
+    <SolidColorBrush x:Key="WindowBg" Color="#F3F3F3" />
     <SolidColorBrush x:Key="PreviewBg" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="SettingsBg" Color="#F0F0F0" />
-    <SolidColorBrush x:Key="HeaderBg" Color="#F3F3F3" />
+    <SolidColorBrush x:Key="SettingsBg" Color="#F3EEE6" />
+    <SolidColorBrush x:Key="HeaderBg" Color="#FFFFFF" />
     <SolidColorBrush x:Key="BorderBrushSubtle" Color="#D9D9D9" />
     <SolidColorBrush x:Key="TextPrimary" Color="#2B2B2B" />
     <SolidColorBrush x:Key="TextSecondary" Color="#6B6B6B" />
@@ -152,6 +152,15 @@
         <Setter Property="Background" Value="{StaticResource BorderBrushSubtle}" />
         <Setter Property="Margin" Value="0,10,0,10" />
         <Setter Property="Height" Value="1" />
+    </Style>
+
+    <Style x:Key="ZoomGroup" TargetType="Border">
+        <Setter Property="Background" Value="White" />
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSubtle}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="3" />
+        <Setter Property="Padding" Value="2" />
+        <Setter Property="Margin" Value="0,0,8,0" />
     </Style>
 
     <Style x:Key="AddPageCardButton" TargetType="Button">

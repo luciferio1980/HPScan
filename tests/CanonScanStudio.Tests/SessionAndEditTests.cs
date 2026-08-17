@@ -37,6 +37,19 @@ public class SessionAndEditTests : IDisposable
     }
 
     [Fact]
+    public void Apply_order_resequences_pages()
+    {
+        var session = new ScanSession();
+        var a = Page("a");
+        var b = Page("b");
+        var c = Page("c");
+        session.Pages.AddRange([a, b, c]);
+        session.ApplyOrder([c.Id, a.Id, b.Id]);
+        session.Pages.Select(p => p.OriginalPath).Should().Equal("c", "a", "b");
+        session.Pages.Select(p => p.Order).Should().Equal(0, 1, 2);
+    }
+
+    [Fact]
     public void Undo_redo_restores_edit_state()
     {
         var undo = new UndoService();

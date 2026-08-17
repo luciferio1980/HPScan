@@ -33,4 +33,29 @@ public sealed class ScanSession
         IsDirty = true;
         ModifiedAt = DateTimeOffset.Now;
     }
+
+    public void ApplyOrder(IReadOnlyList<Guid> orderedIds)
+    {
+        if (orderedIds.Count == 0 || Pages.Count == 0)
+        {
+            return;
+        }
+
+        var remaining = Pages.ToDictionary(p => p.Id);
+        var next = new List<ScanPage>(Pages.Count);
+        foreach (var id in orderedIds)
+        {
+            if (remaining.Remove(id, out var page))
+            {
+                next.Add(page);
+            }
+        }
+
+        next.AddRange(remaining.Values);
+        Pages.Clear();
+        Pages.AddRange(next);
+        Renumber();
+        IsDirty = true;
+        ModifiedAt = DateTimeOffset.Now;
+    }
 }

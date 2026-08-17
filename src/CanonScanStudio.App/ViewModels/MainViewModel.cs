@@ -111,7 +111,8 @@ public sealed partial class MainViewModel : ObservableObject
     public bool HasPages => Pages.Count > 0;
     public bool HasPreview => SelectedPage?.Preview is not null;
     public bool HasSelectedPage => SelectedPage is not null;
-    public string AddPageLabel => Pages.Count == 0 ? "Escanear" : "Añadir página";
+    public string AddPageLabel => Pages.Count == 0 ? "Escanear página" : "Añadir página";
+    public bool CanOrganize => Pages.Count >= 2 && !IsScanning;
     public string ScannerLabel => SelectedDevice?.DisplayName ?? "Ningún escáner";
     public string ConnectionLabel => SelectedDevice?.Connection switch
     {
@@ -331,6 +332,40 @@ public sealed partial class MainViewModel : ObservableObject
     {
         _session.MovePage(from, to);
         ReloadPagesFromSession();
+    }
+
+    private bool CanOrganizePages() => CanOrganize;
+
+    [RelayCommand(CanExecute = nameof(CanOrganizePages))]
+    private void OrganizePages()
+    {
+        var window = new OrganizePagesWindow(Pages.ToList())
+        {
+            Owner = Application.Current.MainWindow
+        };
+        if (window.ShowDialog() != true || window.OrderedIds.Count == 0)
+        {
+            return;
+        }
+
+        var before = _session.Current.Pages.Select(p => p.Id).ToList();
+        var after = window.OrderedIds.ToList();
+        if (before.SequenceEqual(after))
+        {
+            return;
+        }
+
+        _undo.Execute(new DelegateCommand("Organizar",
+            () =>
+            {
+                _session.ApplyOrder(after);
+                ReloadPagesFromSession(SelectedPage?.Page.Id);
+            },
+            () =>
+            {
+                _session.ApplyOrder(before);
+                ReloadPagesFromSession(SelectedPage?.Page.Id);
+            }));
     }
 
     private bool CanEditPage() => SelectedPage is not null;
@@ -910,6 +945,7 @@ public sealed partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(HasPreview));
         OnPropertyChanged(nameof(HasSelectedPage));
         OnPropertyChanged(nameof(AddPageLabel));
+        OnPropertyChanged(nameof(CanOrganize));
         OnPropertyChanged(nameof(ScannerLabel));
         OnPropertyChanged(nameof(ConnectionLabel));
         OnPropertyChanged(nameof(IsCustomSize));
@@ -921,5 +957,6 @@ public sealed partial class MainViewModel : ObservableObject
         FlipVerticalCommand.NotifyCanExecuteChanged();
         DeleteSelectedCommand.NotifyCanExecuteChanged();
         DuplicateSelectedCommand.NotifyCanExecuteChanged();
+        OrganizePagesCommand.NotifyCanExecuteChanged();
     }
 }

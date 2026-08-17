@@ -13,6 +13,7 @@ public interface ISessionService
     void RemovePages(IEnumerable<Guid> ids);
     ScanPage DuplicatePage(Guid id);
     void MovePage(int from, int to);
+    void ApplyOrder(IReadOnlyList<Guid> orderedIds);
     void NewSession();
     void SaveRecovery();
     bool TryRestoreRecovery();
@@ -110,6 +111,12 @@ public sealed class SessionService : ISessionService
     public void MovePage(int from, int to)
     {
         _current.MovePage(from, to);
+        SaveRecovery();
+    }
+
+    public void ApplyOrder(IReadOnlyList<Guid> orderedIds)
+    {
+        _current.ApplyOrder(orderedIds);
         SaveRecovery();
     }
 
