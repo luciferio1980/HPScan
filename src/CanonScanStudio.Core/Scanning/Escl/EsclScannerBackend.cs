@@ -108,7 +108,7 @@ public sealed class EsclScannerBackend : IScannerBackend
         }
 
         request.Progress?.Report(new ScanProgress(15, $"Conectando… {request.Dpi} DPI"));
-        using var post = PostJob(ip, request);
+        using var post = PostJobAllowingBusy(ip, request);
         if ((int)post.StatusCode is < 200 or >= 300)
         {
             var detail = $"{(int)post.StatusCode} {post.ReasonPhrase}";
@@ -188,6 +188,27 @@ public sealed class EsclScannerBackend : IScannerBackend
             Interface = ScannerInterfaceKind.Escl,
             DeviceName = "Canon TS5100 series"
         };
+    }
+
+    private HttpResponseMessage PostJobAllowingBusy(string ip, ScanRequest request)
+    {
+        HttpResponseMessage? last = null;
+        for (var attempt = 0; attempt < 4; attempt++)
+        {
+            last?.Dispose();
+            last = PostJob(ip, request);
+            var code = (int)last.StatusCode;
+            if (code is 409 or 423 or 429 or 503)
+            {
+                request.Progress?.Report(new ScanProgress(20, "El escáner se está preparando para otra página…"));
+                Thread.Sleep(1800);
+                continue;
+            }
+
+            return last;
+        }
+
+        return last!;
     }
 
     private HttpResponseMessage PostJob(string ip, ScanRequest request)

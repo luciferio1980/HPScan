@@ -50,7 +50,16 @@ public sealed partial class MainViewModel : ObservableObject
         _undo = undo;
         _dialogs = dialogs;
         _log = log;
-        _scanner.Changed += (_, _) => Application.Current?.Dispatcher.Invoke(RefreshScannerState);
+        _scanner.Changed += (_, _) =>
+        {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher is null)
+            {
+                return;
+            }
+
+            dispatcher.BeginInvoke(RefreshScannerState);
+        };
         SelectedDpi = ResolutionPresets.UntilDeviceReady.Contains(_settings.Current.DefaultDpi)
             ? _settings.Current.DefaultDpi
             : 300;
@@ -112,7 +121,7 @@ public sealed partial class MainViewModel : ObservableObject
     public bool HasPreview => SelectedPage?.Preview is not null;
     public bool HasSelectedPage => SelectedPage is not null;
     public string AddPageLabel => Pages.Count == 0 ? "Escanear página" : "Añadir página";
-    public bool CanOrganize => Pages.Count >= 2 && !IsScanning;
+    public bool CanOrganize => Pages.Count >= 1 && !IsScanning;
     public string ScannerLabel => SelectedDevice?.DisplayName ?? "Ningún escáner";
     public string ConnectionLabel => SelectedDevice?.Connection switch
     {
@@ -139,14 +148,11 @@ public sealed partial class MainViewModel : ObservableObject
             : "";
     }
 
-    [RelayCommand]
+    private bool CanStartScan() => !IsScanning;
+
+    [RelayCommand(CanExecute = nameof(CanStartScan))]
     private async Task ScanAsync()
     {
-        if (IsScanning)
-        {
-            return;
-        }
-
         if (_scanner.SelectedDevice is null)
         {
             await RefreshDevicesAsync();
@@ -212,9 +218,7 @@ public sealed partial class MainViewModel : ObservableObject
                 ReloadPagesFromSession();
             }));
             ErrorBanner = "";
-            StatusText = actualDpi != SelectedDpi
-                ? $"Página {Pages.Count} · {actualDpi} DPI (se pidieron {SelectedDpi})."
-                : $"Página {Pages.Count} · {actualDpi} DPI";
+            StatusText = $"Página {Pages.Count} añadida · {actualDpi} DPI";
         }
         catch (Exception ex)
         {
@@ -226,6 +230,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             IsScanning = false;
             ScanProgressText = "";
+            ScanCommand.NotifyCanExecuteChanged();
             RefreshScannerState();
             NotifyUi();
         }
@@ -627,6 +632,14 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     partial void OnZoomChanged(double value) => OnPropertyChanged(nameof(ZoomLabel));
+
+    partial void OnIsScanningChanged(bool value)
+    {
+        ScanCommand.NotifyCanExecuteChanged();
+        OrganizePagesCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(CanOrganize));
+    }
     partial void OnSelectedFormatChanged(OutputFormat value) => _settings.Current.DefaultFormat = value;
     partial void OnOcrEnabledChanged(bool value) => _settings.Current.OcrEnabled = value;
     partial void OnAutoExposureChanged(bool value)
@@ -958,5 +971,6 @@ public sealed partial class MainViewModel : ObservableObject
         DeleteSelectedCommand.NotifyCanExecuteChanged();
         DuplicateSelectedCommand.NotifyCanExecuteChanged();
         OrganizePagesCommand.NotifyCanExecuteChanged();
+        ScanCommand.NotifyCanExecuteChanged();
     }
 }

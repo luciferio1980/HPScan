@@ -151,7 +151,6 @@
                         <Button Style="{StaticResource AddPageCardButton}"
                                 Content="{Binding AddPageLabel}"
                                 Command="{Binding ScanCommand}"
-                                IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}"
                                 ToolTip="Escanea una página y la añade al documento" />
                     </StackPanel>
                 </ScrollViewer>
@@ -257,7 +256,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding ScanCommand}" IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}" MinWidth="120">
+                    <Button Style="{StaticResource PrimaryButton}" Command="{Binding ScanCommand}" MinWidth="120">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="+  " />
                             <TextBlock Text="Escanear" />
@@ -275,7 +274,6 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="Guardar" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}" />
-                    <Button Content="Rápido" Style="{StaticResource SecondaryButton}" Command="{Binding QuickSaveCommand}" Margin="8,0,0,0" />
                     <Button Content="Salir" Style="{StaticResource SecondaryButton}" Command="{Binding ExitCommand}" Margin="8,0,0,0" />
                 </StackPanel>
             </Grid>

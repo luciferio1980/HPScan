@@ -1,4 +1,4 @@
-Canon Scan Studio 1.0.7
+Canon Scan Studio 1.0.8
 =======================
 
 Aplicación de escaneo para Windows 10/11 (64 bits), pensada para el Canon PIXMA TS5151.
