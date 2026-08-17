@@ -15,6 +15,8 @@ public interface IImageProcessingService
     CropRegion DetectDocument(string originalPath);
     double DetectSkew(string originalPath);
     ImageInfo ReadInfo(string path);
+    ImageInfo ReadInfo(byte[] bytes);
+    byte[] CropBytes(byte[] sourceBytes, CropRegion region);
 }
 
 public sealed record ImageInfo(int Width, int Height, int Dpi);
@@ -66,6 +68,34 @@ public sealed class ImageProcessingService : IImageProcessingService
         var info = Image.Identify(path) ?? throw new InvalidOperationException("No se ha podido leer la imagen escaneada.");
         var dpi = info.Metadata.HorizontalResolution > 0 ? (int)Math.Round(info.Metadata.HorizontalResolution) : 300;
         return new ImageInfo(info.Width, info.Height, dpi);
+    }
+
+    public ImageInfo ReadInfo(byte[] bytes)
+    {
+        using var ms = new MemoryStream(bytes);
+        var info = Image.Identify(ms) ?? throw new InvalidOperationException("No se ha podido leer la imagen recortada.");
+        var dpi = info.Metadata.HorizontalResolution > 0 ? (int)Math.Round(info.Metadata.HorizontalResolution) : 300;
+        return new ImageInfo(info.Width, info.Height, dpi);
+    }
+
+    public byte[] CropBytes(byte[] sourceBytes, CropRegion region)
+    {
+        using var image = Image.Load<Rgba32>(sourceBytes);
+        var rect = new Rectangle(
+            (int)Math.Round(region.X),
+            (int)Math.Round(region.Y),
+            (int)Math.Round(region.Width),
+            (int)Math.Round(region.Height));
+        rect.Intersect(new Rectangle(0, 0, image.Width, image.Height));
+        if (rect.Width < 2 || rect.Height < 2)
+        {
+            throw new InvalidOperationException("El recorte es demasiado pequeño.");
+        }
+
+        image.Mutate(x => x.Crop(rect));
+        using var ms = new MemoryStream();
+        image.SaveAsPng(ms);
+        return ms.ToArray();
     }
 
     public byte[] ApplyEdits(string originalPath, PageEditState edit, int maxEdge = 0)

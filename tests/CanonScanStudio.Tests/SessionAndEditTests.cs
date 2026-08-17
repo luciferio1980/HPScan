@@ -87,6 +87,13 @@ public class SessionAndEditTests : IDisposable
         using var cropped = Image.Load<Rgba32>(crop);
         cropped.Width.Should().Be(8);
         cropped.Height.Should().Be(6);
+
+        var baked = service.CropBytes(File.ReadAllBytes(path), new CropRegion(2, 2, 8, 6));
+        using var bakedImage = Image.Load<Rgba32>(baked);
+        bakedImage.Width.Should().Be(8);
+        bakedImage.Height.Should().Be(6);
+        var bakedInfo = service.ReadInfo(baked);
+        bakedInfo.Width.Should().Be(8);
     }
 
     [Fact]

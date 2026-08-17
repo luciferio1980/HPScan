@@ -445,6 +445,70 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void CancelCrop() => CropMode = false;
 
+    public void OpenCropPage(PageItemViewModel? item = null)
+    {
+        item ??= SelectedPage;
+        if (item is null)
+        {
+            return;
+        }
+
+        SelectedPage = item;
+        var window = new CropPageWindow(item, _images)
+        {
+            Owner = Application.Current.MainWindow
+        };
+        if (window.ShowDialog() != true || window.NormalizedCrop is null)
+        {
+            return;
+        }
+
+        CommitBakedCrop(item, window.NormalizedCrop);
+    }
+
+    private void CommitBakedCrop(PageItemViewModel item, CropRegion normalized)
+    {
+        var visual = item.Page.Edit.Clone();
+        visual.Crop = null;
+        var full = _images.ApplyEdits(item.Page.OriginalPath, visual);
+        var info = _images.ReadInfo(full);
+        var crop = new CropRegion(
+            normalized.X * info.Width,
+            normalized.Y * info.Height,
+            normalized.Width * info.Width,
+            normalized.Height * info.Height).Clamp(info.Width, info.Height);
+        var cropped = _images.CropBytes(full, crop);
+        var dest = Path.Combine(_session.SessionFolder, $"{Guid.NewGuid():N}.png");
+        File.WriteAllBytes(dest, cropped);
+        var croppedInfo = _images.ReadInfo(dest);
+        var previousPath = item.Page.OriginalPath;
+        var previousEdit = item.Page.Edit.Clone();
+        var previousWidth = item.Page.OriginalWidth;
+        var previousHeight = item.Page.OriginalHeight;
+        _undo.Execute(new DelegateCommand("Recortar",
+            () =>
+            {
+                item.Page.OriginalPath = dest;
+                item.Page.OriginalWidth = croppedInfo.Width;
+                item.Page.OriginalHeight = croppedInfo.Height;
+                item.Page.Edit = PageEditState.Identity();
+                _session.Current.IsDirty = true;
+                RefreshPageImages(item);
+                _session.SaveRecovery();
+            },
+            () =>
+            {
+                item.Page.OriginalPath = previousPath;
+                item.Page.OriginalWidth = previousWidth;
+                item.Page.OriginalHeight = previousHeight;
+                item.Page.Edit = previousEdit;
+                _session.Current.IsDirty = true;
+                RefreshPageImages(item);
+                _session.SaveRecovery();
+            }));
+        NotifyUi();
+    }
+
     [RelayCommand]
     private void AutoDeskew()
     {
@@ -592,7 +656,16 @@ public sealed partial class MainViewModel : ObservableObject
     private void ZoomOut() => Zoom = Math.Max(0.1, Zoom - 0.1);
 
     [RelayCommand]
-    private void FitToWindow() => Zoom = 1;
+    private void FitToWindow()
+    {
+        if (Application.Current?.MainWindow is MainWindow window)
+        {
+            window.FitPagesInView();
+            return;
+        }
+
+        Zoom = 1;
+    }
 
     partial void OnSelectedDeviceChanged(ScanDevice? value)
     {

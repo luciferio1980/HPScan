@@ -9,6 +9,7 @@ public partial class MainWindow : Window
 {
     private Point _dragStart;
     private int _dragIndex = -1;
+    private bool _suspendFit;
 
     public MainWindow(MainViewModel viewModel)
     {
@@ -16,8 +17,36 @@ public partial class MainWindow : Window
         DataContext = viewModel;
         viewModel.Pages.CollectionChanged += (_, _) =>
         {
-            Dispatcher.BeginInvoke(() => PageStripScroll.ScrollToRightEnd(), System.Windows.Threading.DispatcherPriority.Loaded);
+            Dispatcher.BeginInvoke(() =>
+            {
+                FitPagesInView();
+                PageStripScroll.ScrollToRightEnd();
+            }, System.Windows.Threading.DispatcherPriority.Loaded);
         };
+    }
+
+    public void FitPagesInView()
+    {
+        if (DataContext is not MainViewModel vm || PageStripScroll.ActualHeight < 80)
+        {
+            return;
+        }
+
+        const double cardHeight = 348;
+        var zoom = Math.Clamp((PageStripScroll.ActualHeight - 20) / cardHeight, 0.35, 2.8);
+        _suspendFit = true;
+        vm.Zoom = zoom;
+        _suspendFit = false;
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e) => FitPagesInView();
+
+    private void OnPageStripSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        if (!_suspendFit && e.HeightChanged)
+        {
+            FitPagesInView();
+        }
     }
 
     private void OnDragOver(object sender, DragEventArgs e)
@@ -49,8 +78,23 @@ public partial class MainWindow : Window
         e.Handled = true;
     }
 
+    private void OnThumbnailDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            vm.OpenCropPage(vm.SelectedPage);
+        }
+
+        e.Handled = true;
+    }
+
     private void ThumbnailPreviewMouseDown(object sender, MouseButtonEventArgs e)
     {
+        if (e.ClickCount >= 2)
+        {
+            return;
+        }
+
         _dragStart = e.GetPosition(null);
         if (ThumbnailList.SelectedIndex >= 0)
         {

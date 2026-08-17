@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.8
-          name: Canon Scan Studio 1.0.8
+          tag_name: v1.0.9
+          name: Canon Scan Studio 1.0.9
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -96,10 +96,9 @@ jobs:
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
 
-            ## Novedades 1.0.8
-            - **Escanear** añade siempre una página nueva al lado (página 2, 3, 4…).
-            - **Organizar** abre una ventana aparte: arrastra las imágenes, **Aceptar** aplica el orden y **Cancelar** no cambia nada.
-            - Se quita el botón **Rápido**.
+            ## Novedades 1.0.9
+            - Las páginas se muestran **ajustadas al recuadro** tipo folio.
+            - **Doble clic** en una página abre una ventana de recorte: recuadro arrastrable, zona exterior semitransparente, **Aceptar** recorta y **Cancelar** no cambia nada.
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo
@@ -107,8 +106,8 @@ jobs:
 
             ## Uso
             1. Enciende el Canon PIXMA TS5151.
-            2. En Wi-Fi: Configuración → Selector EX2 → marca TS5100 → **Aceptar**.
-            3. Abre Canon Scan Studio y pulsa **Escanear** para cada hoja.
+            2. Pulsa **Escanear** para cada hoja.
+            3. Doble clic en una página para recortarla.
             4. **Organizar** para reordenar. **Guardar** para el PDF.
 
             Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas*.
