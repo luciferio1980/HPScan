@@ -6,7 +6,8 @@ Antes de escanear:
 3. Si no aparece en el programa, instala el MP Driver oficial de Canon
    para la serie TS5100. Este instalador NO incluye controladores de Canon:
    https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers
-4. En Wi-Fi abre IJ Network Scanner Selector EX, marca el TS5100 y pulsa OK.
+4. En Wi-Fi abre IJ Network Scanner Selector EX2, marca el TS5100 y pulsa Aceptar.
+   Si WIA no lo lista, la app intentará escanear por red (eSCL) con la IP de la impresora.
 
-El escáner puede mostrarse como "Canon TS5100 series".
+Si el encabezado dice "Ningún escáner", aún no hay dispositivo de escaneo listo.
 
