@@ -116,6 +116,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public string PageCounter => Pages.Count == 0 ? "0 / 0" : $"{(SelectedPage?.Page.Order ?? 0) + 1} / {Pages.Count}";
     public string ZoomLabel => $"{Math.Round(Zoom * 100)} %";
+    public string DeskewAngleLabel => Math.Abs(DeskewAngle) < 0.05 ? "0°" : $"{DeskewAngle:0.#}°";
     public bool CanSave => Pages.Count > 0 && !IsScanning;
     public bool HasPages => Pages.Count > 0;
     public bool HasPreview => SelectedPage?.Preview is not null;
@@ -743,6 +744,7 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnSaturationChanged(int value) => CommitExposure();
     partial void OnDeskewAngleChanged(double value)
     {
+        OnPropertyChanged(nameof(DeskewAngleLabel));
         if (_updatingEdit || SelectedPage is null) return;
         MutateEdit("Enderezar", e => e.DeskewAngle = value);
     }

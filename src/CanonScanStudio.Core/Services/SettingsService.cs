@@ -51,6 +51,8 @@ public sealed class SettingsService : ISettingsService
             {
                 Current.DefaultColorMode = ScanSettingDefaults.Color;
             }
+
+            Current.ThemeId = AppThemes.Normalize(Current.ThemeId);
         }
         catch (Exception ex)
         {

@@ -21,7 +21,7 @@
             <TextBlock Text="Tipo de archivo" Style="{StaticResource FieldLabel}" />
             <ComboBox x:Name="FormatBox" />
             <CheckBox x:Name="SearchableBox" Content="PDF con texto seleccionable (OCR)" Margin="0,12,0,0" />
-            <TextBlock x:Name="HintBox" Margin="0,8,0,0" Foreground="#6B6B6B" TextWrapping="Wrap" />
+            <TextBlock x:Name="HintBox" Margin="0,8,0,0" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap" />
         </StackPanel>
     </DockPanel>
 </Window>

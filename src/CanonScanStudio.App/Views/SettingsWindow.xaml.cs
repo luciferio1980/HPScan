@@ -44,6 +44,16 @@ public partial class SettingsWindow : Window
         RestoreBox.IsChecked = settings.Current.RestoreLastSession;
         ConfirmBox.IsChecked = settings.Current.ConfirmPageDelete;
         DetailsBox.IsChecked = settings.Current.ShowDetailedErrors;
+        ThemeBox.ItemsSource = AppThemes.All;
+        ThemeBox.SelectedItem = AppThemes.All.First(t => t.Id == AppThemes.Normalize(settings.Current.ThemeId));
+    }
+
+    private void OnThemeChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+    {
+        if (ThemeBox.SelectedItem is AppThemeOption theme)
+        {
+            ThemeService.Apply(theme.Id);
+        }
     }
 
     private void OnDriver(object sender, RoutedEventArgs e) => CanonSetupHelper.OpenDriverPage();
@@ -101,6 +111,11 @@ public partial class SettingsWindow : Window
         _settings.Current.RestoreLastSession = RestoreBox.IsChecked == true;
         _settings.Current.ConfirmPageDelete = ConfirmBox.IsChecked == true;
         _settings.Current.ShowDetailedErrors = DetailsBox.IsChecked == true;
+        if (ThemeBox.SelectedItem is AppThemeOption theme)
+        {
+            _settings.Current.ThemeId = theme.Id;
+            ThemeService.Apply(theme.Id);
+        }
         if (DeviceBox.SelectedItem is ScanDevice device)
         {
             _settings.Current.PreferredDeviceId = device.Id;

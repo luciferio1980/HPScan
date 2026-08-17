@@ -46,6 +46,13 @@
                 <ComboBox x:Name="FormatBox" />
 
                 <Separator Style="{StaticResource Hairline}" />
+                <TextBlock Text="Apariencia" Style="{StaticResource SectionTitle}" />
+                <TextBlock Text="Tema" Style="{StaticResource FieldLabel}" />
+                <ComboBox x:Name="ThemeBox" DisplayMemberPath="DisplayName" SelectionChanged="OnThemeChanged" />
+                <TextBlock Text="Oscuro y Medianoche para de noche. Bosque, Atardecer, Océano y Lavanda cambian colores y acentos."
+                           TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" Margin="0,4,0,0" />
+
+                <Separator Style="{StaticResource Hairline}" />
                 <TextBlock Text="Interfaz" Style="{StaticResource SectionTitle}" />
                 <CheckBox x:Name="RestoreBox" Content="Abrir automáticamente la última sesión" />
                 <CheckBox x:Name="ConfirmBox" Content="Confirmar antes de eliminar páginas" Margin="0,6,0,0" />
@@ -53,7 +60,7 @@
 
                 <Separator Style="{StaticResource Hairline}" />
                 <TextBlock Text="Diagnóstico" Style="{StaticResource SectionTitle}" />
-                <TextBlock Text="Los registros se guardan en la carpeta de datos de usuario. Nunca se muestran códigos técnicos en la ventana principal." TextWrapping="Wrap" Foreground="#6B6B6B" />
+                <TextBlock Text="Los registros se guardan en la carpeta de datos de usuario. Nunca se muestran códigos técnicos en la ventana principal." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondary}" />
             </StackPanel>
         </ScrollViewer>
     </DockPanel>

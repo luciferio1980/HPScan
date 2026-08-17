@@ -31,7 +31,7 @@
         <conv:EnumDisplayConverter x:Key="EnumDisplay" />
         <conv:StatusBrushConverter x:Key="StatusBrush" />
     </Window.Resources>
-    <Grid Background="{StaticResource WindowBg}">
+    <Grid Background="{DynamicResource WindowBg}">
         <Grid.RowDefinitions>
             <RowDefinition Height="42" />
             <RowDefinition Height="*" />
@@ -39,7 +39,7 @@
             <RowDefinition Height="64" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="{StaticResource HeaderBg}" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="0,0,0,1">
+        <Border Grid.Row="0" Background="{DynamicResource HeaderBg}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="0,0,0,1">
             <Grid Margin="14,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -50,9 +50,9 @@
                 <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="24,0,0,0">
                     <Ellipse Width="8" Height="8" Margin="0,0,8,0" Fill="{Binding DeviceStatusText, Converter={StaticResource StatusBrush}}" />
                     <TextBlock Text="{Binding ScannerLabel}" VerticalAlignment="Center" />
-                    <TextBlock Text="  ·  " Foreground="{StaticResource TextSecondary}" />
-                    <TextBlock Text="{Binding ConnectionLabel}" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
-                    <TextBlock Text="  ·  " Foreground="{StaticResource TextSecondary}" />
+                    <TextBlock Text="  ·  " Foreground="{DynamicResource TextSecondary}" />
+                    <TextBlock Text="{Binding ConnectionLabel}" Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" />
+                    <TextBlock Text="  ·  " Foreground="{DynamicResource TextSecondary}" />
                     <TextBlock Text="{Binding DeviceStatusText}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
@@ -68,7 +68,7 @@
                 <ColumnDefinition Width="280" />
             </Grid.ColumnDefinitions>
 
-            <Grid Background="#E8E8E8">
+            <Grid Background="{DynamicResource PreviewAreaBg}">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
@@ -134,21 +134,21 @@
                             <ListBox.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel Margin="8" Width="210">
-                                        <TextBlock Text="{Binding Title}" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,6" />
-                                        <Border Width="210" Height="297" BorderThickness="3" CornerRadius="2" Background="White" Padding="8">
+                                        <TextBlock Text="{Binding Title}" FontSize="12" Foreground="{DynamicResource TextSecondary}" Margin="0,0,0,6" />
+                                        <Border Width="210" Height="297" BorderThickness="3" CornerRadius="2" Background="{DynamicResource CardBg}" Padding="8">
                                             <Border.Style>
                                                 <Style TargetType="Border">
-                                                    <Setter Property="BorderBrush" Value="#D0D0D0" />
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource CardBorder}" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </Border.Style>
                                             <Image Source="{Binding Preview}" Stretch="Uniform" />
                                         </Border>
-                                        <TextBlock Text="{Binding SizeLabel}" FontSize="10" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,6,0,0" />
+                                        <TextBlock Text="{Binding SizeLabel}" FontSize="10" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Center" Margin="0,6,0,0" />
                                     </StackPanel>
                                 </DataTemplate>
                             </ListBox.ItemTemplate>
@@ -161,7 +161,7 @@
                 </ScrollViewer>
             </Grid>
 
-            <Border Grid.Column="1" Background="{StaticResource SettingsBg}" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="1,0,0,0">
+            <Border Grid.Column="1" Background="{DynamicResource SettingsBg}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="1,0,0,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="16,12">
                         <DockPanel>
@@ -176,11 +176,6 @@
                         <Button Content="Selector de red Canon (Wi-Fi)" Style="{StaticResource LinkButton}" Command="{Binding OpenNetworkSelectorCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
                         <Button Content="Descargar MP Driver Canon" Style="{StaticResource LinkButton}" Command="{Binding OpenCanonDriverCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
                         <Button Content="Impresoras y escáneres" Style="{StaticResource LinkButton}" Command="{Binding OpenWindowsPrintersCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
-
-                        <TextBlock Text="Fuente" Style="{StaticResource FieldLabel}" />
-                        <ComboBox SelectedIndex="0">
-                            <ComboBoxItem Content="Platina / Flatbed" />
-                        </ComboBox>
 
                         <TextBlock Text="Tamaño" Style="{StaticResource FieldLabel}" />
                         <ComboBox ItemsSource="{Binding PageSizes}" SelectedItem="{Binding SelectedPageSize}" DisplayMemberPath="DisplayName" />
@@ -224,7 +219,16 @@
                                     <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
                                     <Slider Minimum="-100" Maximum="100" Value="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
                                 </DockPanel>
-                                <Button Content="Detectar inclinación" Style="{StaticResource LinkButton}" Command="{Binding AutoDeskewCommand}" HorizontalAlignment="Left" Margin="0,8,0,8" />
+                                <TextBlock Text="Inclinación" Style="{StaticResource FieldLabel}" />
+                                <DockPanel>
+                                    <TextBlock DockPanel.Dock="Right" Width="48" Text="{Binding DeskewAngleLabel}" VerticalAlignment="Center" TextAlignment="Right" />
+                                    <Slider Minimum="-15" Maximum="15" TickFrequency="0.5" IsSnapToTickEnabled="True"
+                                            SmallChange="0.5" LargeChange="2" Value="{Binding DeskewAngle}"
+                                            ToolTip="Izquierda inclina a la izquierda. Derecha, a la derecha. 0 deja la imagen como está." />
+                                </DockPanel>
+                                <TextBlock Text="Izquierda inclina a la izquierda · derecha a la derecha · 0 la deja como está"
+                                           Foreground="{DynamicResource TextSecondary}" FontSize="11" TextWrapping="Wrap" Margin="0,2,0,4" />
+                                <Button Content="Detectar inclinación" Style="{StaticResource LinkButton}" Command="{Binding AutoDeskewCommand}" HorizontalAlignment="Left" Margin="0,4,0,8" />
                                 <WrapPanel>
                                     <Button Content="Recortar" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="10,6" Margin="0,0,8,8" Command="{Binding DetectDocumentCommand}" />
                                     <Button Content="Aplicar recorte" Style="{StaticResource PrimaryButton}" MinWidth="0" Padding="10,6" Margin="0,0,8,8" Command="{Binding ApplyCropCommand}" />
@@ -246,14 +250,14 @@
             </Border>
         </Grid>
 
-        <Border Grid.Row="2" Background="#FFF8E1" Padding="12,8" Visibility="{Binding ErrorBanner, Converter={StaticResource NullVis}}">
+        <Border Grid.Row="2" Background="{DynamicResource BannerBg}" Padding="12,8" Visibility="{Binding ErrorBanner, Converter={StaticResource NullVis}}">
             <DockPanel>
                 <Button DockPanel.Dock="Right" Content="Actualizar" Style="{StaticResource SecondaryButton}" Command="{Binding RefreshDevicesCommand}" Margin="12,0,0,0" VerticalAlignment="Center" />
-                <TextBlock Text="{Binding ErrorBanner}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorBanner}" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="{DynamicResource BannerForeground}" />
             </DockPanel>
         </Border>
 
-        <Border Grid.Row="3" Background="White" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="0,1,0,0">
+        <Border Grid.Row="3" Background="{DynamicResource FooterBg}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="0,1,0,0">
             <Grid Margin="12,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -275,7 +279,7 @@
                 <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock Text="{Binding PageCounter}" HorizontalAlignment="Center" />
                     <ProgressBar Height="4" Width="180" Margin="0,6,0,0" Value="{Binding ScanProgress}" Visibility="{Binding IsScanning, Converter={StaticResource BoolVis}}" />
-                    <TextBlock Text="{Binding ScanProgressText}" FontSize="11" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" />
+                    <TextBlock Text="{Binding ScanProgressText}" FontSize="11" Foreground="{DynamicResource TextSecondary}" HorizontalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="Guardar" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}" />

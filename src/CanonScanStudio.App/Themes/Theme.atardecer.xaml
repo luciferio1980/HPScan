@@ -1,0 +1,29 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="AccentColor">#E07A5F</Color>
+    <Color x:Key="AccentDarkColor">#C46B4A</Color>
+    <Color x:Key="SecondaryButtonColor">#8D5B4C</Color>
+    <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}" />
+    <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDarkColor}" />
+    <SolidColorBrush x:Key="WindowBg" Color="#F8EDE7" />
+    <SolidColorBrush x:Key="PreviewAreaBg" Color="#F0D9CE" />
+    <SolidColorBrush x:Key="SettingsBg" Color="#F6E6DC" />
+    <SolidColorBrush x:Key="HeaderBg" Color="#FFF8F4" />
+    <SolidColorBrush x:Key="FooterBg" Color="#FFF8F4" />
+    <SolidColorBrush x:Key="CardBg" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="CardBorder" Color="#E2C4B4" />
+    <SolidColorBrush x:Key="ControlBg" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="ControlBorder" Color="#E2C4B4" />
+    <SolidColorBrush x:Key="BorderBrushSubtle" Color="#E8D0C4" />
+    <SolidColorBrush x:Key="TextPrimary" Color="#3D2A24" />
+    <SolidColorBrush x:Key="TextSecondary" Color="#8A6A5E" />
+    <SolidColorBrush x:Key="SecondaryButtonBrush" Color="{StaticResource SecondaryButtonColor}" />
+    <SolidColorBrush x:Key="SecondaryButtonHover" Color="#6E463A" />
+    <SolidColorBrush x:Key="BannerBg" Color="#FFF3E0" />
+    <SolidColorBrush x:Key="BannerForeground" Color="#5D4037" />
+    <SolidColorBrush x:Key="AddPageFill" Color="#FFF8F4" />
+    <SolidColorBrush x:Key="AddPageHover" Color="#FAD9CC" />
+    <SolidColorBrush x:Key="ReadyBrush" Color="#2E7D32" />
+    <SolidColorBrush x:Key="BusyBrush" Color="#EF6C00" />
+    <SolidColorBrush x:Key="OfflineBrush" Color="#C62828" />
+</ResourceDictionary>

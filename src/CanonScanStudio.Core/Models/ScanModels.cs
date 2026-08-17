@@ -45,6 +45,7 @@ public sealed class AppSettings
     public bool AutoExposure { get; set; }
     public double CustomWidthInches { get; set; } = 8.27;
     public double CustomHeightInches { get; set; } = 11.69;
+    public string ThemeId { get; set; } = AppThemes.DefaultId;
 }
 
 public sealed class DiagnosticReport

@@ -36,4 +36,16 @@ public class ScanSettingDefaultsTests
         ScanSettingDefaults.ChooseColor([], ColorMode.BlackAndWhite).Should().Be(ColorMode.BlackAndWhite);
         ScanSettingDefaults.ChooseColor(null, (ColorMode)99).Should().Be(ColorMode.Color);
     }
+
+    [Fact]
+    public void App_themes_normalize_unknown_ids_to_claro()
+    {
+        AppThemes.All.Should().HaveCount(7);
+        AppThemes.All.Select(t => t.Id).Should().Contain(["claro", "oscuro", "medianoche", "bosque", "atardecer", "oceano", "lavanda"]);
+        AppThemes.Normalize(null).Should().Be("claro");
+        AppThemes.Normalize("").Should().Be("claro");
+        AppThemes.Normalize("OSCURO").Should().Be("oscuro");
+        AppThemes.Normalize("no-existe").Should().Be("claro");
+        new AppSettings().ThemeId.Should().Be("claro");
+    }
 }

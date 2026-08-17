@@ -20,9 +20,9 @@
         </StackPanel>
         <StackPanel>
             <TextBlock Text="Bienvenido a Canon Scan Studio" FontSize="20" FontWeight="SemiBold" />
-            <TextBlock x:Name="StatusLabel" Text="Buscando escáneres..." Margin="0,12,0,12" Foreground="#6B6B6B" />
+            <TextBlock x:Name="StatusLabel" Text="Buscando escáneres..." Margin="0,12,0,12" Foreground="{DynamicResource TextSecondary}" />
             <ListBox x:Name="DeviceList" Height="160" DisplayMemberPath="DisplayName" />
-            <TextBlock Margin="0,12,0,0" Foreground="#6B6B6B" TextWrapping="Wrap"
+            <TextBlock Margin="0,12,0,0" Foreground="{DynamicResource TextSecondary}" TextWrapping="Wrap"
                        Text="Si no aparece ningún escáner, en Wi-Fi abre el Selector de red Canon, marca el TS5100 y pulsa Aceptar. Luego Buscar de nuevo. Suele llamarse Canon TS5100 series." />
         </StackPanel>
     </DockPanel>

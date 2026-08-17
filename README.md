@@ -6,7 +6,7 @@ Aplicación de escritorio para Windows 10/11 que escanea, previsualiza, edita, o
 
 **No uses** el botón verde **Code → Download ZIP**. Eso es el código fuente, no el instalador.
 
-Pulsa aquí para bajar la última versión (1.0.13 o superior):
+Pulsa aquí para bajar la última versión (1.0.14 o superior):
 
 - **[CanonScanStudio-Setup.exe](https://github.com/luciferio1980/HPScan/releases/latest/download/CanonScanStudio-Setup.exe)** — instalador con acceso directo
 - **[CanonScanStudio-Portable-win-x64.zip](https://github.com/luciferio1980/HPScan/releases/latest/download/CanonScanStudio-Portable-win-x64.zip)** — descomprime la carpeta y abre `CanonScanStudio.exe`

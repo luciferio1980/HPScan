@@ -158,6 +158,26 @@ public class SessionAndEditTests : IDisposable
     }
 
     [Fact]
+    public void Deskew_zero_leaves_pixels_and_nonzero_tilts()
+    {
+        var path = Path.Combine(_root, "tilt.png");
+        using (var image = new Image<Rgba32>(40, 30, new Rgba32(20, 80, 160)))
+        {
+            image.SaveAsPng(path);
+        }
+
+        var service = new ImageProcessingService();
+        var original = service.ApplyEdits(path, PageEditState.Identity());
+        var untilted = service.ApplyEdits(path, new PageEditState { DeskewAngle = 0 });
+        untilted.Should().Equal(original);
+
+        var tilted = service.ApplyEdits(path, new PageEditState { DeskewAngle = -6 });
+        tilted.Should().NotEqual(original);
+        using var result = Image.Load<Rgba32>(tilted);
+        result.Width.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
     public void Import_jpeg_returns_png_bytes()
     {
         var path = Path.Combine(_root, "photo.jpg");

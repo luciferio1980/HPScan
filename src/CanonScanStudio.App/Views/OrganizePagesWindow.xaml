@@ -5,14 +5,14 @@
         Height="620" Width="980"
         MinHeight="480" MinWidth="720"
         WindowStartupLocation="CenterOwner"
-        Background="#F3F3F3"
+        Background="{DynamicResource WindowBg}"
         ShowInTaskbar="False"
         AllowDrop="True"
         PreviewMouseLeftButtonUp="OnPreviewMouseUp"
         DragOver="OnDragOver"
         Drop="OnDrop">
     <DockPanel>
-        <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#D9D9D9" BorderThickness="0,1,0,0" Padding="16,12">
+        <Border DockPanel.Dock="Bottom" Background="{DynamicResource FooterBg}" BorderBrush="{DynamicResource BorderBrushSubtle}" BorderThickness="0,1,0,0" Padding="16,12">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
                     <Button Content="Mover izquierda" Style="{StaticResource SecondaryButton}" MinWidth="120" Margin="0,0,8,0" Click="OnMoveLeft" />
@@ -21,7 +21,7 @@
                     <Button Content="Aceptar" Style="{StaticResource PrimaryButton}" IsDefault="True" MinWidth="110" Click="OnAccept" />
                 </StackPanel>
                 <TextBlock Text="Arrastra cada imagen o usa Mover izquierda/derecha. Aceptar guarda el orden; Cancelar lo deja como estaba."
-                           Foreground="#6B6B6B" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,16,0" />
+                           Foreground="{DynamicResource TextSecondary}" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,16,0" />
             </DockPanel>
         </Border>
         <ScrollViewer Padding="16" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
@@ -52,15 +52,15 @@
                         <Setter Property="Template">
                             <Setter.Value>
                                 <ControlTemplate TargetType="ListBoxItem">
-                                    <Border x:Name="card" Background="White" BorderBrush="#D0D0D0" BorderThickness="2" CornerRadius="4" Padding="8">
+                                    <Border x:Name="card" Background="{DynamicResource CardBg}" BorderBrush="{DynamicResource CardBorder}" BorderThickness="2" CornerRadius="4" Padding="8">
                                         <ContentPresenter />
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
-                                            <Setter TargetName="card" Property="BorderBrush" Value="#1E88E5" />
+                                            <Setter TargetName="card" Property="BorderBrush" Value="{DynamicResource AccentBrush}" />
                                         </Trigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="card" Property="BorderBrush" Value="#90CAF9" />
+                                            <Setter TargetName="card" Property="BorderBrush" Value="{DynamicResource AccentDarkBrush}" />
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>

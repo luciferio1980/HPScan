@@ -44,6 +44,7 @@ public partial class App : Application
         Services = collection.BuildServiceProvider();
 
         var settings = Services.GetRequiredService<ISettingsService>();
+        ThemeService.Apply(settings.Current.ThemeId);
         var session = Services.GetRequiredService<ISessionService>();
         if (settings.Current.RestoreLastSession)
         {

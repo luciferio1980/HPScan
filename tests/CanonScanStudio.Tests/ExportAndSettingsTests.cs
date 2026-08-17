@@ -100,11 +100,13 @@ public class ExportAndSettingsTests : IDisposable
             service.Current.DefaultColorMode = ColorMode.Grayscale;
             service.Current.Interface = ScannerInterfaceKind.Wia;
             service.Current.ConfirmPageDelete = false;
+            service.Current.ThemeId = "oscuro";
             service.Save();
             var loaded = new SettingsService(new InMemoryLog());
             loaded.Current.DefaultDpi.Should().Be(600);
             loaded.Current.DefaultColorMode.Should().Be(ColorMode.Grayscale);
             loaded.Current.Interface.Should().Be(ScannerInterfaceKind.Wia);
+            loaded.Current.ThemeId.Should().Be("oscuro");
     }
 
     [Fact]

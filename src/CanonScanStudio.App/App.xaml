@@ -4,6 +4,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Theme.claro.xaml" />
                 <ResourceDictionary Source="Themes/ScanStudio.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
