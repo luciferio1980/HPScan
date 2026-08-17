@@ -26,4 +26,20 @@ public class PageSizeTests
         clamped.WidthInches.Should().Be(8.5);
         clamped.HeightInches.Should().Be(11.7);
     }
+
+    [Fact]
+    public void Sanitize_dpi_fixes_imported_photo_metadata()
+    {
+        ResolutionPresets.SanitizeDpi(1220, 1549, 1).Should().Be(300);
+        ResolutionPresets.SanitizeDpi(372, 628, 3780).Should().Be(300);
+        ResolutionPresets.SanitizeDpi(2480, 3508, 300).Should().Be(300);
+        ResolutionPresets.SanitizeDpi(4961, 7016, 600).Should().Be(600);
+
+        var huge = ResolutionPresets.PdfPageSizePoints(1220, 1549, 1);
+        huge.WidthPts.Should().BeInRange(72, 14400);
+        huge.HeightPts.Should().BeInRange(72, 14400);
+        var tiny = ResolutionPresets.PdfPageSizePoints(372, 628, 3780);
+        tiny.WidthPts.Should().BeInRange(72, 14400);
+        tiny.HeightPts.Should().BeInRange(72, 14400);
+    }
 }

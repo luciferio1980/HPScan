@@ -91,7 +91,11 @@ jobs:
           $notes = @(
             "Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.",
             "",
-            "## Novedades 1.0.12",
+            "## Novedades 1.0.13",
+            "- Guardar un documento importado ya no falla por DPI irreales (1 DPI, 3780 DPI, etc.).",
+            "- Las fotos y capturas se ajustan a un tamaño de página imprimible.",
+            "",
+            "## 1.0.12",
             "- Tras la primera página puedes seguir usando Escanear, Importar, Eliminar, Duplicar, Organizar y Girar.",
             "- Organizar páginas: Mover izquierda / Mover derecha además de arrastrar.",
             "- Importar imagen o PDF desde el disco.",
@@ -124,18 +128,18 @@ jobs:
           $delay = 15
           for ($i = 1; $i -le 6; $i++) {
             Write-Host "GitHub release attempt $i..."
-            gh release view v1.0.12 *> $null
+            gh release view v1.0.13 *> $null
             $exists = $LASTEXITCODE -eq 0
             if ($exists) {
-              gh release edit v1.0.12 --title "Canon Scan Studio 1.0.12" --notes-file $notesPath --latest
+              gh release edit v1.0.13 --title "Canon Scan Studio 1.0.13" --notes-file $notesPath --latest
               if ($LASTEXITCODE -eq 0) {
-                gh release upload v1.0.12 $zip $setup --clobber
+                gh release upload v1.0.13 $zip $setup --clobber
               }
             } else {
-              gh release create v1.0.12 $zip $setup --title "Canon Scan Studio 1.0.12" --notes-file $notesPath --latest
+              gh release create v1.0.13 $zip $setup --title "Canon Scan Studio 1.0.13" --notes-file $notesPath --latest
             }
             if ($LASTEXITCODE -eq 0) {
-              Write-Host "Published v1.0.12."
+              Write-Host "Published v1.0.13."
               exit 0
             }
             Write-Host "GitHub API failed (attempt $i). Waiting $delay seconds..."

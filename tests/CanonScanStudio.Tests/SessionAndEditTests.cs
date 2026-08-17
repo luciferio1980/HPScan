@@ -168,12 +168,32 @@ public class SessionAndEditTests : IDisposable
 
         var imported = new ImportService(new InMemoryLog(), new ImageProcessingService()).Import(path);
         imported.Should().HaveCount(1);
+        imported[0].Dpi.Should().BeInRange(72, 1200);
         imported[0].Extension.Should().Be(".png");
         imported[0].Bytes[0].Should().Be(0x89);
         imported[0].Bytes[1].Should().Be(0x50);
         using var png = Image.Load<Rgba32>(imported[0].Bytes);
         png.Width.Should().Be(16);
         png.Height.Should().Be(12);
+    }
+
+    [Fact]
+    public void ReadInfo_ignores_impossible_embedded_dpi()
+    {
+        var path = Path.Combine(_root, "junk-dpi.png");
+        using (var image = new Image<Rgba32>(1220, 1549, new Rgba32(220, 220, 220)))
+        {
+            image.Metadata.HorizontalResolution = 1;
+            image.Metadata.VerticalResolution = 1;
+            image.Metadata.ResolutionUnits = SixLabors.ImageSharp.Metadata.PixelResolutionUnit.PixelsPerInch;
+            image.SaveAsPng(path);
+        }
+
+        var info = new ImageProcessingService().ReadInfo(path);
+        info.Width.Should().Be(1220);
+        info.Height.Should().Be(1549);
+        info.Dpi.Should().BeInRange(72, 400);
+        (info.Height / (double)info.Dpi).Should().BeLessThan(20);
     }
 
     [Fact]

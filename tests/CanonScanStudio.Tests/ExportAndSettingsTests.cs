@@ -52,6 +52,46 @@ public class ExportAndSettingsTests : IDisposable
     }
 
     [Fact]
+    public void Exports_imported_photos_with_junk_dpi()
+    {
+        var pages = new List<ExportedPage>
+        {
+            PageAt(1220, 1549, 1, Color.White),
+            PageAt(372, 628, 3780, Color.LightGray)
+        };
+        var path = Path.Combine(_root, "importados.pdf");
+        new PdfService().Export(pages, path, searchable: false);
+        File.Exists(path).Should().BeTrue();
+        new FileInfo(path).Length.Should().BeGreaterThan(200);
+    }
+
+    [Fact]
+    public void Exports_searchable_pdf_when_ocr_boxes_are_in_pixels()
+    {
+        var image = PageAt(372, 628, 3780, Color.White);
+        var ocr = new OcrPageResult
+        {
+            PageId = Guid.NewGuid(),
+            Text = "hola",
+            Words =
+            [
+                new OcrWord
+                {
+                    Text = "hola",
+                    Left = 40,
+                    Top = 80,
+                    Width = 90,
+                    Height = 24,
+                    Confidence = 90
+                }
+            ]
+        };
+        var path = Path.Combine(_root, "ocr.pdf");
+        new PdfService().Export([image with { Ocr = ocr }], path, searchable: true);
+        File.Exists(path).Should().BeTrue();
+    }
+
+    [Fact]
     public void Settings_roundtrip()
     {
             Environment.SetEnvironmentVariable("CANON_SCAN_STUDIO_DATA", _root);
@@ -80,11 +120,13 @@ public class ExportAndSettingsTests : IDisposable
         loaded.Current.DefaultColorMode.Should().Be(ColorMode.Color);
     }
 
-    private static ExportedPage Page(Color color)
+    private static ExportedPage Page(Color color) => PageAt(40, 50, 75, color);
+
+    private static ExportedPage PageAt(int width, int height, int dpi, Color color)
     {
-        using var image = new Image<Rgba32>(40, 50, color);
+        using var image = new Image<Rgba32>(width, height, color);
         using var ms = new MemoryStream();
         image.SaveAsPng(ms);
-        return new ExportedPage(ms.ToArray(), 75, 40, 50, null);
+        return new ExportedPage(ms.ToArray(), dpi, width, height, null);
     }
 }

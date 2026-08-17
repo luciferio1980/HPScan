@@ -47,7 +47,8 @@ public sealed class ImportService : IImportService
     {
         var bytes = _images.ApplyEdits(path, PageEditState.Identity());
         var info = _images.ReadInfo(bytes);
-        return new ImportedImage(bytes, ".png", info.Dpi <= 0 ? 300 : info.Dpi);
+        var dpi = ResolutionPresets.SanitizeDpi(info.Width, info.Height, info.Dpi);
+        return new ImportedImage(bytes, ".png", dpi);
     }
 
     private List<ImportedImage> ImportPdf(string path)

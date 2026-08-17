@@ -1,6 +1,7 @@
 using CanonScanStudio.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Metadata;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -57,16 +58,36 @@ public sealed class ImageProcessingService : IImageProcessingService
     public ImageInfo ReadInfo(string path)
     {
         var info = Image.Identify(path) ?? throw new InvalidOperationException("No se ha podido leer la imagen escaneada.");
-        var dpi = info.Metadata.HorizontalResolution > 0 ? (int)Math.Round(info.Metadata.HorizontalResolution) : 300;
-        return new ImageInfo(info.Width, info.Height, dpi);
+        return ToImageInfo(info.Width, info.Height, info.Metadata);
     }
 
     public ImageInfo ReadInfo(byte[] bytes)
     {
         using var ms = new MemoryStream(bytes);
         var info = Image.Identify(ms) ?? throw new InvalidOperationException("No se ha podido leer la imagen recortada.");
-        var dpi = info.Metadata.HorizontalResolution > 0 ? (int)Math.Round(info.Metadata.HorizontalResolution) : 300;
-        return new ImageInfo(info.Width, info.Height, dpi);
+        return ToImageInfo(info.Width, info.Height, info.Metadata);
+    }
+
+    private static ImageInfo ToImageInfo(int width, int height, ImageMetadata metadata)
+    {
+        var dpi = ResolutionPresets.SanitizeDpi(width, height, MetadataDpi(metadata));
+        return new ImageInfo(width, height, dpi);
+    }
+
+    internal static int MetadataDpi(ImageMetadata metadata)
+    {
+        var raw = metadata.HorizontalResolution;
+        if (raw <= 0.01)
+        {
+            return 0;
+        }
+
+        return metadata.ResolutionUnits switch
+        {
+            PixelResolutionUnit.PixelsPerCentimeter => (int)Math.Round(raw * 2.54),
+            PixelResolutionUnit.AspectRatio => 0,
+            _ => (int)Math.Round(raw)
+        };
     }
 
     public byte[] CropBytes(byte[] sourceBytes, CropRegion region)

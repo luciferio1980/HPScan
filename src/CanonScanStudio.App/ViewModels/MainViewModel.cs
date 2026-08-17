@@ -267,7 +267,8 @@ public sealed partial class MainViewModel : ObservableObject
                 var dest = Path.Combine(_session.SessionFolder, $"{Guid.NewGuid():N}.png");
                 File.WriteAllBytes(dest, image.Bytes);
                 var info = _images.ReadInfo(dest);
-                var page = _session.AddImportedPage(dest, image.Dpi, info.Width, info.Height);
+                var dpi = ResolutionPresets.SanitizeDpi(info.Width, info.Height, image.Dpi > 0 ? image.Dpi : info.Dpi);
+                var page = _session.AddImportedPage(dest, dpi, info.Width, info.Height);
                 AddPageItem(page);
             }
 
@@ -1116,8 +1117,15 @@ public sealed partial class MainViewModel : ObservableObject
                 }
             }
 
-            var info = _images.ReadInfo(item.Page.OriginalPath);
-            list.Add(new ExportedPage(bytes, item.Page.Dpi == 0 ? info.Dpi : item.Page.Dpi, info.Width, info.Height, ocr));
+            var info = _images.ReadInfo(bytes);
+            var rawDpi = item.Page.Dpi > 0 ? item.Page.Dpi : info.Dpi;
+            var dpi = ResolutionPresets.SanitizeDpi(info.Width, info.Height, rawDpi);
+            if (dpi != item.Page.Dpi)
+            {
+                item.Page.Dpi = dpi;
+            }
+
+            list.Add(new ExportedPage(bytes, dpi, info.Width, info.Height, ocr));
         }
 
         return list;
