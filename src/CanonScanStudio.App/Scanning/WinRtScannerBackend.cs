@@ -1,3 +1,4 @@
+using System.IO;
 using CanonScanStudio.Infrastructure;
 using CanonScanStudio.Models;
 using CanonScanStudio.Scanning;
