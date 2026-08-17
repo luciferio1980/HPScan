@@ -60,20 +60,36 @@ public sealed class EnumDisplayConverter : IValueConverter
         throw new NotSupportedException();
 }
 
+public sealed class InvertBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is not true;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+        value is not true;
+}
+
 public sealed class StatusBrushConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         var text = value?.ToString() ?? "";
         if (text.Contains("Escaneando", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("Buscando", StringComparison.OrdinalIgnoreCase))
+            text.Contains("Buscando", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("Ocupado", StringComparison.OrdinalIgnoreCase))
         {
             return new SolidColorBrush(Color.FromRgb(0xEF, 0x6C, 0x00));
         }
 
+        if (text.Contains("No disponible", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("Desconectado", StringComparison.OrdinalIgnoreCase) ||
+            text.Contains("Desconocido", StringComparison.OrdinalIgnoreCase))
+        {
+            return new SolidColorBrush(Color.FromRgb(0xC6, 0x28, 0x28));
+        }
+
         if (text.Contains("Listo", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("Conectado", StringComparison.OrdinalIgnoreCase) ||
-            text.Contains("Disponible", StringComparison.OrdinalIgnoreCase))
+            text.Contains("Conectado", StringComparison.OrdinalIgnoreCase))
         {
             return new SolidColorBrush(Color.FromRgb(0x2E, 0x7D, 0x32));
         }

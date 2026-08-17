@@ -33,6 +33,13 @@ public static class AppPaths
         Directory.CreateDirectory(Thumbnails);
         Directory.CreateDirectory(Previews);
         Directory.CreateDirectory(TessData);
-        Directory.CreateDirectory(DefaultDocuments);
+        try
+        {
+            Directory.CreateDirectory(DefaultDocuments);
+        }
+        catch
+        {
+            // La carpeta de documentos puede no ser accesible; no debe impedir el arranque.
+        }
     }
 }
