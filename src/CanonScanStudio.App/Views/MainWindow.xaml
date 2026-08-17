@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:CanonScanStudio.App.Converters"
         Title="Canon Scan Studio"
-        Height="760" Width="1180"
-        MinHeight="600" MinWidth="960"
+        Height="780" Width="1280"
+        MinHeight="620" MinWidth="1024"
         WindowStartupLocation="CenterScreen"
         AllowDrop="True"
         Drop="OnDrop"
@@ -16,6 +16,7 @@
         <KeyBinding Gesture="Ctrl+Z" Command="{Binding UndoCommand}" />
         <KeyBinding Gesture="Ctrl+Y" Command="{Binding RedoCommand}" />
         <KeyBinding Gesture="Ctrl+R" Command="{Binding RotateRightCommand}" />
+        <KeyBinding Gesture="Ctrl+L" Command="{Binding RotateLeftCommand}" />
         <KeyBinding Key="Delete" Command="{Binding DeleteSelectedCommand}" />
         <KeyBinding Key="F5" Command="{Binding RefreshDevicesCommand}" />
         <KeyBinding Key="F6" Command="{Binding ScanCommand}" />
@@ -61,76 +62,11 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="168" />
+                <ColumnDefinition Width="280" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="300" />
             </Grid.ColumnDefinitions>
 
-            <Border Background="White" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="0,0,1,0">
-                <ListBox x:Name="ThumbnailList"
-                         ItemsSource="{Binding Pages}"
-                         SelectedItem="{Binding SelectedPage}"
-                         BorderThickness="0"
-                         Background="Transparent"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         AllowDrop="True"
-                         PreviewMouseLeftButtonDown="ThumbnailPreviewMouseDown"
-                         DragOver="ThumbnailDragOver"
-                         Drop="ThumbnailDrop">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Margin="8" Width="132">
-                                <TextBlock Text="{Binding Title}" FontSize="11" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,4" />
-                                <Border BorderThickness="3" CornerRadius="1" Background="#FAFAFA">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Setter Property="BorderBrush" Value="Transparent" />
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <Image Source="{Binding Thumbnail}" Stretch="Uniform" MaxHeight="160" Margin="4" />
-                                </Border>
-                                <TextBlock Text="{Binding SizeLabel}" FontSize="10" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,4,0,0" />
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </Border>
-
-            <Grid Grid.Column="1" Background="White">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                <StackPanel Orientation="Horizontal" Margin="12,8">
-                    <Button Content="−" Style="{StaticResource IconButton}" Width="32" Height="28" Command="{Binding ZoomOutCommand}" />
-                    <TextBlock Text="{Binding ZoomLabel}" VerticalAlignment="Center" Margin="4,0,8,0" Width="48" TextAlignment="Center" />
-                    <Button Content="+" Style="{StaticResource IconButton}" Width="32" Height="28" Command="{Binding ZoomInCommand}" />
-                    <Button Content="Ajustar" Style="{StaticResource SecondaryButton}" MinWidth="72" Padding="10,4" Command="{Binding FitToWindowCommand}" />
-                    <Button Content="↶" Style="{StaticResource IconButton}" Width="36" Height="28" Command="{Binding RotateLeftCommand}" ToolTip="Rotar izquierda" Margin="16,0,8,0" />
-                    <Button Content="↷" Style="{StaticResource IconButton}" Width="36" Height="28" Command="{Binding RotateRightCommand}" ToolTip="Rotar derecha" />
-                </StackPanel>
-                <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#FAFAFA">
-                    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="16">
-                        <Image Source="{Binding SelectedPage.Preview}" Stretch="Uniform"
-                               RenderTransformOrigin="0.5,0.5">
-                            <Image.LayoutTransform>
-                                <ScaleTransform ScaleX="{Binding Zoom}" ScaleY="{Binding Zoom}" />
-                            </Image.LayoutTransform>
-                        </Image>
-                        <TextBlock Text="Escanea un documento o importa una imagen para comenzar."
-                                   Foreground="{StaticResource TextSecondary}"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                                   Visibility="{Binding HasPreview, Converter={StaticResource BoolVisInv}}" />
-                    </Grid>
-                </ScrollViewer>
-            </Grid>
-
-            <Border Grid.Column="2" Background="{StaticResource SettingsBg}" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="1,0,0,0">
+            <Border Background="{StaticResource SettingsBg}" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="0,0,1,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="16,12">
                         <DockPanel>
@@ -177,10 +113,10 @@
                         </ComboBox>
 
                         <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Rotar" Style="{StaticResource FieldLabel}" />
+                        <TextBlock Text="Girar página" Style="{StaticResource SectionTitle}" />
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="↶" Style="{StaticResource IconButton}" Command="{Binding RotateLeftCommand}" ToolTip="90° izquierda" />
-                            <Button Content="↷" Style="{StaticResource IconButton}" Command="{Binding RotateRightCommand}" ToolTip="90° derecha" />
+                            <Button Content="↶  Izquierda" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,8" Command="{Binding RotateLeftCommand}" ToolTip="Girar 90° a la izquierda" Margin="0,0,8,0" />
+                            <Button Content="Derecha  ↷" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,8" Command="{Binding RotateRightCommand}" ToolTip="Girar 90° a la derecha" />
                         </StackPanel>
 
                         <Separator Style="{StaticResource Hairline}" />
@@ -260,6 +196,93 @@
                     </StackPanel>
                 </ScrollViewer>
             </Border>
+
+            <Grid Grid.Column="1" Background="#ECECEC">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <StackPanel Orientation="Horizontal" Margin="16,10,16,6">
+                    <Button Content="−" Style="{StaticResource IconButton}" Width="32" Height="28" Command="{Binding ZoomOutCommand}" />
+                    <TextBlock Text="{Binding ZoomLabel}" VerticalAlignment="Center" Margin="4,0,8,0" Width="48" TextAlignment="Center" />
+                    <Button Content="+" Style="{StaticResource IconButton}" Width="32" Height="28" Command="{Binding ZoomInCommand}" />
+                    <Button Content="Ajustar" Style="{StaticResource SecondaryButton}" MinWidth="72" Padding="10,4" Command="{Binding FitToWindowCommand}" />
+                    <Button Content="↶  Girar izquierda" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,6" Command="{Binding RotateLeftCommand}" ToolTip="Girar 90° a la izquierda" Margin="16,0,8,0" />
+                    <Button Content="Girar derecha  ↷" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,6" Command="{Binding RotateRightCommand}" ToolTip="Girar 90° a la derecha" />
+                </StackPanel>
+                <ScrollViewer x:Name="PageStripScroll"
+                              Grid.Row="1"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled"
+                              PreviewMouseWheel="OnPageStripWheel"
+                              Padding="8,4,8,16">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding Zoom}" ScaleY="{Binding Zoom}" />
+                        </StackPanel.LayoutTransform>
+                        <ListBox x:Name="ThumbnailList"
+                                 ItemsSource="{Binding Pages}"
+                                 SelectedItem="{Binding SelectedPage}"
+                                 BorderThickness="0"
+                                 Background="Transparent"
+                                 HorizontalAlignment="Left"
+                                 VerticalAlignment="Center"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                 ScrollViewer.CanContentScroll="False"
+                                 AllowDrop="True"
+                                 PreviewMouseLeftButtonDown="ThumbnailPreviewMouseDown"
+                                 DragOver="ThumbnailDragOver"
+                                 Drop="ThumbnailDrop">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="0" />
+                                    <Setter Property="Margin" Value="0" />
+                                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <ContentPresenter />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="8" Width="210">
+                                        <TextBlock Text="{Binding Title}" FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,6" />
+                                        <Border BorderThickness="3" CornerRadius="2" Background="White" Padding="6">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="BorderBrush" Value="#D0D0D0" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Image Source="{Binding Preview}" Stretch="Uniform" Height="248" />
+                                        </Border>
+                                        <TextBlock Text="{Binding SizeLabel}" FontSize="10" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center" Margin="0,6,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <Button Style="{StaticResource AddPageCardButton}"
+                                Content="{Binding AddPageLabel}"
+                                Command="{Binding ScanCommand}"
+                                IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}"
+                                ToolTip="Escanea otra página y la añade a la derecha" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Grid>
         </Grid>
 
         <Border Grid.Row="2" Background="#FFF8E1" Padding="12,8" Visibility="{Binding ErrorBanner, Converter={StaticResource NullVis}}">
@@ -283,6 +306,7 @@
                             <TextBlock Text="Escanear" />
                         </StackPanel>
                     </Button>
+                    <Button Content="Añadir página" Style="{StaticResource SecondaryButton}" Command="{Binding ScanCommand}" IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}" Margin="8,0,0,0" Visibility="{Binding HasPages, Converter={StaticResource BoolVis}}" />
                     <Button Content="Importar" Style="{StaticResource SecondaryButton}" Command="{Binding ImportCommand}" Margin="8,0,0,0" />
                     <Button Content="Eliminar" Style="{StaticResource SecondaryButton}" Command="{Binding DeleteSelectedCommand}" Margin="8,0,0,0" />
                     <Button Content="Duplicar" Style="{StaticResource SecondaryButton}" Command="{Binding DuplicateSelectedCommand}" Margin="8,0,0,0" />

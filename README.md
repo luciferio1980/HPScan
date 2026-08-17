@@ -8,7 +8,7 @@ Paquete listo para Windows 10/11 **64 bits**. No hace falta instalar .NET:
 
 **https://github.com/luciferio1980/HPScan/releases/latest**
 
-Descarga la versión **1.0.1 o superior** (corrige un fallo que impedía abrir la ventana en 1.0.0):
+Descarga la versión **1.0.2 o superior**:
 
 1. **CanonScanStudio-Setup.exe** — instalador con acceso directo
 2. **CanonScanStudio-Portable-win-x64.zip** — descomprime la carpeta y abre `CanonScanStudio.exe`
