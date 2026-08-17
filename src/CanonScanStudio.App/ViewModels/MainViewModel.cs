@@ -198,7 +198,7 @@ public sealed partial class MainViewModel : ObservableObject
                 CancellationToken = _scanCts.Token
             });
 
-            var pngPath = Path.Combine(_session.SessionFolder, $"{Guid.NewGuid():N}{ExtensionFor(result.FormatHint)}");
+            var pngPath = Path.Combine(_session.SessionFolder, $"{Guid.NewGuid():N}.png");
             _images.SaveOriginal(result.ImageBytes, pngPath, result.Dpi);
             var info = _images.ReadInfo(pngPath);
             var actualDpi = ResolutionPresets.InferFromPixels(info.Width, size.WidthInches);
@@ -875,20 +875,23 @@ public sealed partial class MainViewModel : ObservableObject
                 item.Thumbnail = item.Preview;
                 item.NotifyLabels();
             }
-            catch (Exception fallback)
+            catch (Exception applyFallback)
             {
-                _log.Warn("Tampoco se ha podido mostrar la imagen: " + fallback.Message);
+                _log.Warn("Tampoco se ha podido regenerar la imagen: " + applyFallback.Message);
+                try
+                {
+                    var raw = File.ReadAllBytes(item.Page.OriginalPath);
+                    item.Preview = ImageSourceFactory.FromBytes(raw);
+                    item.Thumbnail = item.Preview;
+                    item.NotifyLabels();
+                }
+                catch (Exception rawFallback)
+                {
+                    _log.Warn("Tampoco se ha podido mostrar el archivo original: " + rawFallback.Message);
+                }
             }
         }
     }
-
-    private static string ExtensionFor(string? formatHint) => formatHint?.ToLowerInvariant() switch
-    {
-        "png" => ".png",
-        "tif" or "tiff" => ".tif",
-        "bmp" => ".bmp",
-        _ => ".jpg"
-    };
 
     private void RefreshScannerState()
     {

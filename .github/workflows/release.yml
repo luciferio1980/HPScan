@@ -91,11 +91,11 @@ jobs:
           $notes = @(
             "Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.",
             "",
-            "## Novedades 1.0.10",
-            "- La vista previa convierte el JPEG del escáner a PNG para que se vea en el recuadro.",
-            "- Doble clic para recortar ya no cierra la aplicación si la imagen falla al cargarse.",
-            "- **Resolución** muestra 300 DPI (o la configurada) y **Color** arranca en Color.",
-            "- El zoom por defecto es **100 %**. *Ajustar* sigue encajando las páginas en la ventana.",
+            "## Novedades 1.0.11",
+            "- La página escaneada se ve en el recuadro (ya no queda en blanco).",
+            "- Doble clic para recortar abre la ventana en lugar de 'Parameter key'.",
+            "- El JPEG del Canon se guarda como PNG limpio (sin EXIF/ICC rotos).",
+            "- Resolución 300 DPI, Color y zoom 100 % siguen como predeterminados.",
             "",
             "## Qué descargar",
             "- **CanonScanStudio-Setup.exe** — instalador con acceso directo",
@@ -122,18 +122,18 @@ jobs:
           $delay = 15
           for ($i = 1; $i -le 6; $i++) {
             Write-Host "GitHub release attempt $i..."
-            gh release view v1.0.10 *> $null
+            gh release view v1.0.11 *> $null
             $exists = $LASTEXITCODE -eq 0
             if ($exists) {
-              gh release edit v1.0.10 --title "Canon Scan Studio 1.0.10" --notes-file $notesPath --latest
+              gh release edit v1.0.11 --title "Canon Scan Studio 1.0.11" --notes-file $notesPath --latest
               if ($LASTEXITCODE -eq 0) {
-                gh release upload v1.0.10 $zip $setup --clobber
+                gh release upload v1.0.11 $zip $setup --clobber
               }
             } else {
-              gh release create v1.0.10 $zip $setup --title "Canon Scan Studio 1.0.10" --notes-file $notesPath --latest
+              gh release create v1.0.11 $zip $setup --title "Canon Scan Studio 1.0.11" --notes-file $notesPath --latest
             }
             if ($LASTEXITCODE -eq 0) {
-              Write-Host "Published v1.0.10."
+              Write-Host "Published v1.0.11."
               exit 0
             }
             Write-Host "GitHub API failed (attempt $i). Waiting $delay seconds..."

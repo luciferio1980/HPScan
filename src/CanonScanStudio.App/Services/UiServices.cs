@@ -7,12 +7,14 @@ public static class ImageSourceFactory
 {
     public static BitmapImage FromBytes(byte[] bytes)
     {
-        using var stream = new MemoryStream(bytes);
+        // Do not set IgnoreImageCache here. That flag is only valid with UriSource;
+        // with StreamSource WPF looks up a null URI and throws
+        // ArgumentNullException (Parameter 'key'), leaving the page frame blank.
         var image = new BitmapImage();
         image.BeginInit();
         image.CacheOption = BitmapCacheOption.OnLoad;
-        image.CreateOptions = BitmapCreateOptions.IgnoreImageCache | BitmapCreateOptions.IgnoreColorProfile;
-        image.StreamSource = stream;
+        image.CreateOptions = BitmapCreateOptions.IgnoreColorProfile;
+        image.StreamSource = new MemoryStream(bytes, writable: false);
         image.EndInit();
         image.Freeze();
         return image;

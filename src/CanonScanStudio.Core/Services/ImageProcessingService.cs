@@ -1,5 +1,6 @@
 using CanonScanStudio.Models;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -34,11 +35,7 @@ public sealed class ProcessedImage : IDisposable
 
 public sealed class ImageProcessingService : IImageProcessingService
 {
-    public ProcessedImage LoadOriginal(string path)
-    {
-        using var stream = File.OpenRead(path);
-        return new ProcessedImage(Image.Load<Rgba32>(stream));
-    }
+    public ProcessedImage LoadOriginal(string path) => new(LoadRgba32(path));
 
     public byte[] SaveOriginal(byte[] sourceBytes, string destinationPath, int dpi)
     {
@@ -49,15 +46,10 @@ public sealed class ImageProcessingService : IImageProcessingService
         }
 
         Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-        if (IsJpeg(sourceBytes) || IsPng(sourceBytes) || IsTiff(sourceBytes) || IsBmp(sourceBytes))
-        {
-            File.WriteAllBytes(destinationPath, sourceBytes);
-            return sourceBytes;
-        }
-
-        using var image = Image.Load<Rgba32>(sourceBytes);
+        using var image = LoadRgba32(sourceBytes);
         image.Metadata.HorizontalResolution = dpi;
         image.Metadata.VerticalResolution = dpi;
+        ClearProfiles(image);
         image.SaveAsPng(destinationPath);
         return File.ReadAllBytes(destinationPath);
     }
@@ -79,7 +71,7 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public byte[] CropBytes(byte[] sourceBytes, CropRegion region)
     {
-        using var image = Image.Load<Rgba32>(sourceBytes);
+        using var image = LoadRgba32(sourceBytes);
         var rect = new Rectangle(
             (int)Math.Round(region.X),
             (int)Math.Round(region.Y),
@@ -124,7 +116,7 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public CropRegion DetectDocument(string originalPath)
     {
-        using var image = Image.Load<Rgba32>(originalPath);
+        using var image = LoadRgba32(originalPath);
         using var work = image.Clone();
         work.Mutate(x =>
         {
@@ -176,7 +168,7 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public double DetectSkew(string originalPath)
     {
-        using var image = Image.Load<Rgba32>(originalPath);
+        using var image = LoadRgba32(originalPath);
         using var work = image.Clone();
         work.Mutate(x =>
         {
@@ -222,18 +214,31 @@ public sealed class ImageProcessingService : IImageProcessingService
         return Math.Abs(bestAngle) < 0.25 ? 0 : -bestAngle;
     }
 
-    private static Image<Rgba32> LoadForEdit(string originalPath)
+    private static Image<Rgba32> LoadForEdit(string originalPath) => LoadRgba32(originalPath);
+
+    private static Image<Rgba32> LoadRgba32(string originalPath) =>
+        LoadRgba32(File.ReadAllBytes(originalPath));
+
+    private static Image<Rgba32> LoadRgba32(byte[] sourceBytes)
     {
+        var bytes = IsJpeg(sourceBytes) ? JpegSanitizer.StripProblematicSegments(sourceBytes) : sourceBytes;
+        var options = new DecoderOptions { SkipMetadata = true };
         try
         {
-            return Image.Load<Rgba32>(originalPath);
+            using var stream = new MemoryStream(bytes);
+            var image = Image.Load<Rgba32>(options, stream);
+            ClearProfiles(image);
+            return image;
         }
         catch (Exception first)
         {
             try
             {
-                using var loaded = Image.Load(originalPath);
-                return loaded.CloneAs<Rgba32>();
+                using var stream = new MemoryStream(bytes);
+                using var loaded = Image.Load(options, stream);
+                var rgba = loaded.CloneAs<Rgba32>();
+                ClearProfiles(rgba);
+                return rgba;
             }
             catch (Exception second)
             {
@@ -242,6 +247,14 @@ public sealed class ImageProcessingService : IImageProcessingService
                     second.InnerException ?? first);
             }
         }
+    }
+
+    private static void ClearProfiles(Image image)
+    {
+        image.Metadata.ExifProfile = null;
+        image.Metadata.IccProfile = null;
+        image.Metadata.IptcProfile = null;
+        image.Metadata.XmpProfile = null;
     }
 
     private static void ResizeToMaxEdge(Image<Rgba32> image, int maxEdge)

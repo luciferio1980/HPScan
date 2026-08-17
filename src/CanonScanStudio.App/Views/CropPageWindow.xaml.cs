@@ -56,7 +56,14 @@ public partial class CropPageWindow : Window
         }
         catch
         {
-            return images.ApplyEdits(page.Page.OriginalPath, PageEditState.Identity());
+            try
+            {
+                return images.ApplyEdits(page.Page.OriginalPath, PageEditState.Identity());
+            }
+            catch
+            {
+                return File.ReadAllBytes(page.Page.OriginalPath);
+            }
         }
     }
 
