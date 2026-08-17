@@ -23,7 +23,7 @@ public partial class SettingsWindow : Window
         IfAuto.IsChecked = settings.Current.Interface == ScannerInterfaceKind.Auto;
         IfWia.IsChecked = settings.Current.Interface == ScannerInterfaceKind.Wia;
         IfTwain.IsChecked = settings.Current.Interface == ScannerInterfaceKind.Twain;
-        DpiBox.ItemsSource = new[] { 75, 150, 200, 300, 600, 1200 };
+        DpiBox.ItemsSource = new[] { 75, 150, 300, 600, 1200 };
         DpiBox.SelectedItem = settings.Current.DefaultDpi;
         ColorBox.ItemsSource = new[] { ColorMode.Color, ColorMode.Grayscale, ColorMode.BlackAndWhite };
         ColorBox.SelectedItem = settings.Current.DefaultColorMode;

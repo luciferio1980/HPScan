@@ -117,9 +117,9 @@ public sealed class WinRtScannerBackend : IScannerBackend
             _log.Warn("No se han podido leer capacidades de Windows Scan: " + ex.Message);
         }
 
-        if (resolutions.Count == 0 || DeviceMatcher.IsCanonTs5100Family(name))
+        if (resolutions.Count == 0)
         {
-            resolutions = ResolutionPresets.ForTs5151(resolutions).ToList();
+            resolutions = ResolutionPresets.UntilDeviceReady.ToList();
         }
 
         if (colorModes.Count == 0)

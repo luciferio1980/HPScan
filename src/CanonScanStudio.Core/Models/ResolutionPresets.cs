@@ -1,27 +1,62 @@
 namespace CanonScanStudio.Models;
 
-/// <summary>
-/// El PIXMA TS5151 (serie TS5100) tiene CIS óptico 1200×2400 dpi.
-/// WIA en red a veces solo publica hasta 600; la UI igual ofrece 1200.
-/// </summary>
 public static class ResolutionPresets
 {
-    public static readonly int[] Standard = [75, 150, 200, 300, 600, 1200];
+    /// <summary>
+    /// Shown before a scanner reports its own list. Intentionally excludes 1200:
+    /// Wi-Fi eSCL on TS5100 is typically max 600, and offering 1200 caused failed scans.
+    /// </summary>
+    public static readonly int[] UntilDeviceReady = [75, 150, 300, 600];
 
-    public static IReadOnlyList<int> ForTs5151(IEnumerable<int>? advertised = null)
+    /// <summary>USB WIA on TS5151 often advertises these when the MP Driver is healthy.</summary>
+    public static readonly int[] UsbTs5151Typical = [75, 100, 150, 200, 300, 600, 1200];
+
+    public static IReadOnlyList<int> MergeAdvertised(IEnumerable<int>? advertised)
     {
-        var set = new SortedSet<int>(Standard);
+        var set = new SortedSet<int>();
         if (advertised is not null)
         {
             foreach (var dpi in advertised)
             {
-                if (dpi is >= 50 and <= 2400)
+                if (dpi is >= 50 and <= 9600)
                 {
                     set.Add(dpi);
                 }
             }
         }
 
-        return set.ToList();
+        if (set.Count == 0)
+        {
+            return UntilDeviceReady;
+        }
+
+        return set.ToArray();
+    }
+
+    /// <summary>
+    /// Pixel width vs paper width in inches → nearest common DPI so the UI matches the file.
+    /// </summary>
+    public static int InferFromPixels(int pixelWidth, double pageWidthInches)
+    {
+        if (pixelWidth < 8 || pageWidthInches < 0.4)
+        {
+            return 0;
+        }
+
+        var raw = pixelWidth / pageWidthInches;
+        var candidates = new[] { 75, 100, 150, 200, 300, 400, 600, 1200, 2400 };
+        var best = candidates[0];
+        var bestDelta = double.MaxValue;
+        foreach (var c in candidates)
+        {
+            var d = Math.Abs(c - raw);
+            if (d < bestDelta)
+            {
+                bestDelta = d;
+                best = c;
+            }
+        }
+
+        return bestDelta / best > 0.18 ? (int)Math.Round(raw) : best;
     }
 }

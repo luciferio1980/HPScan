@@ -1,5 +1,6 @@
 using CanonScanStudio.Models;
 using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -40,7 +41,19 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public byte[] SaveOriginal(byte[] sourceBytes, string destinationPath, int dpi)
     {
+        if (sourceBytes.Length < 32 || LooksLikeXml(sourceBytes))
+        {
+            throw new InvalidOperationException(
+                "El escáner ha devuelto un error en lugar de la imagen. Cierra IJ Scan Utility y el Selector EX2 extra, y vuelve a escanear.");
+        }
+
         Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+        if (IsJpeg(sourceBytes) || IsPng(sourceBytes) || IsTiff(sourceBytes) || IsBmp(sourceBytes))
+        {
+            File.WriteAllBytes(destinationPath, sourceBytes);
+            return sourceBytes;
+        }
+
         using var image = Image.Load<Rgba32>(sourceBytes);
         image.Metadata.HorizontalResolution = dpi;
         image.Metadata.VerticalResolution = dpi;
@@ -50,14 +63,14 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public ImageInfo ReadInfo(string path)
     {
-        using var image = Image.Load<Rgba32>(path);
-        var dpi = image.Metadata.HorizontalResolution > 0 ? (int)Math.Round(image.Metadata.HorizontalResolution) : 300;
-        return new ImageInfo(image.Width, image.Height, dpi);
+        var info = Image.Identify(path) ?? throw new InvalidOperationException("No se ha podido leer la imagen escaneada.");
+        var dpi = info.Metadata.HorizontalResolution > 0 ? (int)Math.Round(info.Metadata.HorizontalResolution) : 300;
+        return new ImageInfo(info.Width, info.Height, dpi);
     }
 
     public byte[] ApplyEdits(string originalPath, PageEditState edit, int maxEdge = 0)
     {
-        using var image = Image.Load<Rgba32>(originalPath);
+        using var image = LoadForEdit(originalPath, maxEdge);
         Mutate(image, edit);
         if (maxEdge > 0)
         {
@@ -79,7 +92,7 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public byte[] CreateThumbnail(string originalPath, PageEditState edit, int width = 140)
     {
-        using var image = Image.Load<Rgba32>(originalPath);
+        using var image = LoadForEdit(originalPath, Math.Max(width * 2, 280));
         Mutate(image, edit);
         image.Mutate(x => x.Resize(new ResizeOptions
         {
@@ -189,6 +202,31 @@ public sealed class ImageProcessingService : IImageProcessingService
         }
 
         return Math.Abs(bestAngle) < 0.25 ? 0 : -bestAngle;
+    }
+
+    private static Image<Rgba32> LoadForEdit(string originalPath, int maxEdge)
+    {
+        if (maxEdge > 0)
+        {
+            var options = new DecoderOptions { TargetSize = new Size(maxEdge, maxEdge) };
+            return Image.Load<Rgba32>(options, originalPath);
+        }
+
+        return Image.Load<Rgba32>(originalPath);
+    }
+
+    private static bool IsJpeg(byte[] bytes) => bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xD8;
+    private static bool IsPng(byte[] bytes) => bytes.Length >= 2 && bytes[0] == 0x89 && bytes[1] == 0x50;
+    private static bool IsBmp(byte[] bytes) => bytes.Length >= 2 && bytes[0] == (byte)'B' && bytes[1] == (byte)'M';
+    private static bool IsTiff(byte[] bytes) =>
+        bytes.Length >= 2 &&
+        ((bytes[0] == (byte)'I' && bytes[1] == (byte)'I') || (bytes[0] == (byte)'M' && bytes[1] == (byte)'M'));
+
+    private static bool LooksLikeXml(byte[] bytes)
+    {
+        var take = Math.Min(bytes.Length, 80);
+        var text = System.Text.Encoding.UTF8.GetString(bytes, 0, take).TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+        return text.StartsWith('<');
     }
 
     private static void Mutate(Image<Rgba32> image, PageEditState edit)

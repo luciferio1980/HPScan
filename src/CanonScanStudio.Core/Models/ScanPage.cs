@@ -27,7 +27,7 @@ public sealed class ScanPage
                 return string.Empty;
             }
 
-            return $"{WidthInches:0.00} × {HeightInches:0.00} in";
+            return $"{OriginalWidth} × {OriginalHeight} px · {Dpi} DPI";
         }
     }
 

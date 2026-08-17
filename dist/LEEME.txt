@@ -1,4 +1,4 @@
-Canon Scan Studio 1.0.6
+Canon Scan Studio 1.0.7
 =======================
 
 Aplicación de escaneo para Windows 10/11 (64 bits), pensada para el Canon PIXMA TS5151.
@@ -7,14 +7,16 @@ CÓMO USARLA
 -----------
 1. Enciende la impresora/escáner.
 2. Conéctala por USB o a la misma red Wi-Fi.
-3. En Wi-Fi: abre IJ Network Scanner Selector EX2, marca el TS5100
-   y pulsa Aceptar. Luego Reintentar en esta app.
-4. Si Windows no lista el escáner WIA, 1.0.5 busca la IP de la impresora
+3. En Wi-Fi: Configuración → Selector de red Canon, marca el TS5100
+   y pulsa Aceptar. Luego Actualizar en la ventana principal.
+4. Si Windows no lista el escáner WIA, la app busca la IP de la impresora
    y escanea por red (eSCL / AirPrint).
-5. Elige 300 DPI (o 1200 si quieres más detalle), Color, pulsa Escanear y guarda en PDF.
+5. Elige una resolución de la lista (en Wi-Fi suele llegar a 600 DPI),
+   Color, pulsa Escanear y guarda en PDF.
 
-Si el encabezado dice "Ningún escáner" / "No disponible", todavía no hay
-dispositivo de escaneo listo (no está bloqueado: no se ha detectado).
+La lista de DPI es la que anuncia el escáner: no se ofrece 1200 si
+esa conexión no lo admite. Tras escanear, cada página muestra
+píxeles y DPI reales.
 
 SI NO SE ABRE
 -------------

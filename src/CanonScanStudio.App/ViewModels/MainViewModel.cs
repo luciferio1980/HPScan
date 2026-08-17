@@ -51,7 +51,9 @@ public sealed partial class MainViewModel : ObservableObject
         _dialogs = dialogs;
         _log = log;
         _scanner.Changed += (_, _) => Application.Current?.Dispatcher.Invoke(RefreshScannerState);
-        SelectedDpi = _settings.Current.DefaultDpi;
+        SelectedDpi = ResolutionPresets.UntilDeviceReady.Contains(_settings.Current.DefaultDpi)
+            ? _settings.Current.DefaultDpi
+            : 300;
         SelectedColor = _settings.Current.DefaultColorMode;
         SelectedPageSize = PageSizeDefinition.Find(_settings.Current.DefaultPageSizeId);
         SelectedFormat = _settings.Current.DefaultFormat;
@@ -66,7 +68,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public ObservableCollection<PageItemViewModel> Pages { get; } = [];
     public ObservableCollection<ScanDevice> Devices { get; } = [];
-    public ObservableCollection<int> Resolutions { get; } = new(ResolutionPresets.Standard);
+    public ObservableCollection<int> Resolutions { get; } = new(ResolutionPresets.UntilDeviceReady);
     public ObservableCollection<ColorMode> ColorModes { get; } = [ColorMode.Color, ColorMode.Grayscale, ColorMode.BlackAndWhite];
     public ObservableCollection<PageSizeDefinition> PageSizes { get; } = new(PageSizeDefinition.Presets);
     public ObservableCollection<OutputFormat> Formats { get; } = [OutputFormat.Pdf, OutputFormat.Jpeg, OutputFormat.Png, OutputFormat.Tiff];
@@ -109,7 +111,7 @@ public sealed partial class MainViewModel : ObservableObject
     public bool HasPages => Pages.Count > 0;
     public bool HasPreview => SelectedPage?.Preview is not null;
     public bool HasSelectedPage => SelectedPage is not null;
-    public string AddPageLabel => Pages.Count == 0 ? "Escanear página" : "Añadir página";
+    public string AddPageLabel => Pages.Count == 0 ? "Escanear" : "Añadir página";
     public string ScannerLabel => SelectedDevice?.DisplayName ?? "Ningún escáner";
     public string ConnectionLabel => SelectedDevice?.Connection switch
     {
@@ -131,21 +133,9 @@ public sealed partial class MainViewModel : ObservableObject
         StatusText = "Buscando escáneres...";
         await Task.Run(() => _scanner.RefreshDevices());
         RefreshScannerState();
-        if (SelectedDevice is null)
-        {
-            ErrorBanner =
-                "No hay ningún escáner de Windows conectado (WIA vacío). El nombre del producto no significa que esté detectado."
-                + Environment.NewLine + Environment.NewLine
-                + CanonSetupHelper.BuildHint()
-                + Environment.NewLine
-                + CanonScanStudio.Scanning.Network.CanonNetworkLocator.BuildSummary()
-                + Environment.NewLine + Environment.NewLine
-                + "En el Selector EX2 marca el TS5100 y pulsa Aceptar (no dejes la ventana abierta). Luego Reintentar. Si imprime por Wi-Fi, esta versión busca el escáner por red (eSCL) usando la IP de la impresora.";
-        }
-        else
-        {
-            ErrorBanner = "";
-        }
+        ErrorBanner = SelectedDevice is null
+            ? "No se ha detectado el escáner. Ábrelo en Configuración (Selector de red Canon) y pulsa Actualizar."
+            : "";
     }
 
     [RelayCommand]
@@ -162,9 +152,21 @@ public sealed partial class MainViewModel : ObservableObject
             if (_scanner.SelectedDevice is null)
             {
                 ShowScannerError(new ScannerException(
-                    "No hay escáner listo. En el Selector EX2 pulsa Aceptar, luego Reintentar. Si la impresora ya imprime por Wi-Fi, espera a que aparezca como dispositivo de red (eSCL)."));
+                    "No hay escáner listo. En Configuración abre el Selector de red Canon, marca el TS5100 y pulsa Actualizar."));
                 return;
             }
+        }
+
+        var size = SelectedPageSize.Id == "Custom"
+            ? SelectedPageSize with { WidthInches = CustomWidth, HeightInches = CustomHeight }
+            : SelectedPageSize;
+        if (_scanner.Capabilities is { ResolutionsDpi.Count: > 0 } caps &&
+            !caps.SupportsDpi(SelectedDpi))
+        {
+            var max = caps.ResolutionsDpi.Max();
+            ShowScannerError(new ScannerException(
+                $"Esta conexión no admite {SelectedDpi} DPI (máximo {max} DPI). Elige {max} DPI en Resolución."));
+            return;
         }
 
         IsScanning = true;
@@ -180,9 +182,6 @@ public sealed partial class MainViewModel : ObservableObject
                 ScanProgressText = p.Message;
                 StatusText = p.Message;
             });
-            var size = SelectedPageSize.Id == "Custom"
-                ? SelectedPageSize with { WidthInches = CustomWidth, HeightInches = CustomHeight }
-                : SelectedPageSize;
             var result = await _scanner.ScanAsync(new ScanRequest
             {
                 DeviceId = _scanner.SelectedDevice.Id,
@@ -193,10 +192,16 @@ public sealed partial class MainViewModel : ObservableObject
                 CancellationToken = _scanCts.Token
             });
 
-            var pngPath = Path.Combine(_session.SessionFolder, $"{Guid.NewGuid():N}.png");
+            var pngPath = Path.Combine(_session.SessionFolder, $"{Guid.NewGuid():N}{ExtensionFor(result.FormatHint)}");
             _images.SaveOriginal(result.ImageBytes, pngPath, result.Dpi);
             var info = _images.ReadInfo(pngPath);
-            result = result with { Width = info.Width, Height = info.Height };
+            var actualDpi = ResolutionPresets.InferFromPixels(info.Width, size.WidthInches);
+            if (actualDpi <= 0)
+            {
+                actualDpi = result.Dpi > 0 ? result.Dpi : SelectedDpi;
+            }
+
+            result = result with { Width = info.Width, Height = info.Height, Dpi = actualDpi };
             var page = _session.AddScannedPage(result, File.ReadAllBytes(pngPath), pngPath);
             var item = AddPageItem(page);
             SelectedPage = item;
@@ -206,9 +211,9 @@ public sealed partial class MainViewModel : ObservableObject
                 ReloadPagesFromSession();
             }));
             ErrorBanner = "";
-            StatusText = Pages.Count <= 1
-                ? "Página lista. Pulsa Añadir página para escanear otra."
-                : $"Página {Pages.Count} añadida.";
+            StatusText = actualDpi != SelectedDpi
+                ? $"Página {Pages.Count} · {actualDpi} DPI (se pidieron {SelectedDpi})."
+                : $"Página {Pages.Count} · {actualDpi} DPI";
         }
         catch (Exception ex)
         {
@@ -262,7 +267,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanEditPage))]
     private void DeleteSelected()
     {
         if (SelectedPage is null)
@@ -293,7 +298,7 @@ public sealed partial class MainViewModel : ObservableObject
             }));
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanEditPage))]
     private void DuplicateSelected()
     {
         if (SelectedPage is null) return;
@@ -518,7 +523,7 @@ public sealed partial class MainViewModel : ObservableObject
             if (picked is null)
             {
                 ErrorBanner =
-                    "Windows no ha mostrado ningún escáner. Instala el MP Driver de la serie TS5100 (no basta con añadir la impresora) y, en Wi-Fi, abre el Selector de red Canon.";
+                    "Windows no ha mostrado ningún escáner. En Configuración instala el MP Driver o abre el Selector de red Canon.";
                 return;
             }
 
@@ -715,8 +720,27 @@ public sealed partial class MainViewModel : ObservableObject
         catch (Exception ex)
         {
             _log.Warn("No se ha podido generar la vista previa: " + ex.Message);
+            try
+            {
+                var raw = File.ReadAllBytes(item.Page.OriginalPath);
+                item.Preview = ImageSourceFactory.FromBytes(raw);
+                item.Thumbnail = item.Preview;
+                item.NotifyLabels();
+            }
+            catch (Exception fallback)
+            {
+                _log.Warn("Tampoco se ha podido mostrar el JPEG original: " + fallback.Message);
+            }
         }
     }
+
+    private static string ExtensionFor(string? formatHint) => formatHint?.ToLowerInvariant() switch
+    {
+        "png" => ".png",
+        "tif" or "tiff" => ".tif",
+        "bmp" => ".bmp",
+        _ => ".jpg"
+    };
 
     private void RefreshScannerState()
     {
@@ -746,26 +770,21 @@ public sealed partial class MainViewModel : ObservableObject
     private void ApplyCapabilities()
     {
         var caps = _scanner.Capabilities;
+        var dpiList = ResolutionPresets.MergeAdvertised(caps?.ResolutionsDpi);
+        Resolutions.Clear();
+        foreach (var dpi in dpiList)
+        {
+            Resolutions.Add(dpi);
+        }
+
+        if (!Resolutions.Contains(SelectedDpi))
+        {
+            SelectedDpi = dpiList.OrderBy(d => Math.Abs(d - (SelectedDpi == 0 ? 300 : SelectedDpi))).First();
+        }
+
         if (caps is null)
         {
             return;
-        }
-
-        if (caps.ResolutionsDpi.Count > 0)
-        {
-            var dpiList = SelectedDevice?.IsCanonTs5100Family == true
-                ? ResolutionPresets.ForTs5151(caps.ResolutionsDpi)
-                : caps.ResolutionsDpi;
-            Resolutions.Clear();
-            foreach (var dpi in dpiList)
-            {
-                Resolutions.Add(dpi);
-            }
-
-            if (!Resolutions.Contains(SelectedDpi))
-            {
-                SelectedDpi = dpiList.OrderBy(d => Math.Abs(d - SelectedDpi)).First();
-            }
         }
 
         if (caps.ColorModes.Count > 0)
@@ -877,25 +896,10 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void ShowScannerError(Exception ex)
     {
-        var message = ex is ScannerException scanner ? scanner.UserMessage : """
-            No se puede acceder al escáner.
-
-            Comprueba:
-            1. Que el Canon esté encendido.
-            2. Que el cable USB esté conectado o que esté conectado a la misma red Wi-Fi.
-            3. Que el controlador del escáner esté instalado.
-            4. Que ninguna otra aplicación esté utilizando el escáner.
-            """;
-        if (_settings.Current.ShowDetailedErrors && ex.InnerException is not null)
-        {
-            message += Environment.NewLine + Environment.NewLine + "Detalle técnico guardado en el registro.";
-        }
-
+        var message = ex is ScannerException scanner
+            ? scanner.UserMessage
+            : "No se puede acceder al escáner. Comprueba que esté encendido y en la misma red.";
         ErrorBanner = message.Trim();
-        if (_dialogs.ConfirmRetry("Escáner", message + Environment.NewLine + Environment.NewLine + "Pulsa Aceptar para reintentar."))
-        {
-            _ = ScanAsync();
-        }
     }
 
     private void NotifyUi()
@@ -915,5 +919,7 @@ public sealed partial class MainViewModel : ObservableObject
         Rotate180Command.NotifyCanExecuteChanged();
         FlipHorizontalCommand.NotifyCanExecuteChanged();
         FlipVerticalCommand.NotifyCanExecuteChanged();
+        DeleteSelectedCommand.NotifyCanExecuteChanged();
+        DuplicateSelectedCommand.NotifyCanExecuteChanged();
     }
 }

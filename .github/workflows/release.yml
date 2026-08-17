@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.6
-          name: Canon Scan Studio 1.0.6
+          tag_name: v1.0.7
+          name: Canon Scan Studio 1.0.7
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -96,8 +96,10 @@ jobs:
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
 
-            ## Novedades 1.0.6
-            - Vuelve a aparecer **1200 DPI** (el CIS del TS5151 es 1200×2400). En 1.0.5 la lista de Wi-Fi se quedaba en 600.
+            ## Novedades 1.0.7
+            - La lista de **DPI es la que anuncia el escáner**. En Wi-Fi (eSCL) el TS5100 suele llegar a **600**; 1200 solo aparece si USB/WIA lo admite de verdad. Ya no se ofrece 1200 si el aparato lo rechaza.
+            - Tras escanear, la etiqueta de página muestra los **píxeles y el DPI reales** de la imagen.
+            - Interfaz más clara, al estilo HP Scan: **Escanear**, **Añadir página**, **Eliminar**, **Girar** y **Guardar**. Sin avisos de F5 ni bloques de driver en la ventana principal (siguen en Configuración y Ayuda).
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo
@@ -105,9 +107,9 @@ jobs:
 
             ## Uso
             1. Enciende el Canon PIXMA TS5151.
-            2. En Wi-Fi: Selector EX2 → marca TS5100 → **Aceptar**.
-            3. Abre Canon Scan Studio y pulsa **Reintentar**.
-            4. Elige resolución (hasta 1200 DPI) y pulsa **Escanear**.
+            2. En Wi-Fi: Configuración → Selector EX2 → marca TS5100 → **Aceptar**.
+            3. Abre Canon Scan Studio y pulsa **Actualizar** si hace falta.
+            4. Elige resolución (la que salga en la lista) y pulsa **Escanear**.
 
             Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas*.
 

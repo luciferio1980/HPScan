@@ -1,4 +1,6 @@
 using System.Globalization;
+using System.Net;
+using System.Text;
 using System.Xml.Linq;
 using CanonScanStudio.Models;
 
@@ -59,6 +61,7 @@ internal static class EsclProtocol
                 </pwg:ScanRegion>
               </pwg:ScanRegions>
               <pwg:InputSource>Platen</pwg:InputSource>
+              <scan:Intent>Document</scan:Intent>
               <pwg:DocumentFormat>image/jpeg</pwg:DocumentFormat>
               <scan:ColorMode>{color}</scan:ColorMode>
               <scan:XResolution>{dpi.ToString(CultureInfo.InvariantCulture)}</scan:XResolution>
@@ -66,4 +69,64 @@ internal static class EsclProtocol
             </scan:ScanSettings>
             """;
     }
+
+    public static bool IsImageBytes(byte[] bytes)
+    {
+        if (bytes.Length < 4)
+        {
+            return false;
+        }
+
+        return (bytes[0] == 0xFF && bytes[1] == 0xD8) ||
+               (bytes[0] == 0x89 && bytes[1] == 0x50) ||
+               (bytes[0] == (byte)'B' && bytes[1] == (byte)'M') ||
+               (bytes[0] == (byte)'I' && bytes[1] == (byte)'I') ||
+               (bytes[0] == (byte)'M' && bytes[1] == (byte)'M');
+    }
+
+    public static bool IsXmlOrHtml(byte[] bytes)
+    {
+        if (bytes.Length == 0)
+        {
+            return false;
+        }
+
+        var take = Math.Min(bytes.Length, 80);
+        var text = Encoding.UTF8.GetString(bytes, 0, take).TrimStart('\uFEFF', ' ', '\t', '\r', '\n');
+        return text.StartsWith('<') || text.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static string FormatHint(byte[] bytes) =>
+        bytes.Length >= 2 && bytes[0] == 0x89 && bytes[1] == 0x50 ? "png"
+        : bytes.Length >= 2 && bytes[0] == (byte)'I' && bytes[1] == (byte)'I' ? "tiff"
+        : bytes.Length >= 2 && bytes[0] == (byte)'M' && bytes[1] == (byte)'M' ? "tiff"
+        : "jpeg";
+
+    public static Uri? ResolveJobUri(string baseUrl, Uri? location, IEnumerable<string>? extraLocations)
+    {
+        if (location is not null)
+        {
+            return location.IsAbsoluteUri ? location : new Uri(new Uri(baseUrl.TrimEnd('/') + "/"), location);
+        }
+
+        var raw = extraLocations?.FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+        if (raw is null)
+        {
+            return null;
+        }
+
+        if (Uri.TryCreate(raw, UriKind.Absolute, out var abs))
+        {
+            return abs;
+        }
+
+        return Uri.TryCreate(new Uri(baseUrl.TrimEnd('/') + "/"), raw, out var rel) ? rel : null;
+    }
+
+    public static bool ShouldRetryNextDocument(HttpStatusCode status) =>
+        status is HttpStatusCode.ServiceUnavailable
+            or HttpStatusCode.RequestTimeout
+            or HttpStatusCode.NotFound
+            or HttpStatusCode.Conflict
+            or (HttpStatusCode)425;
 }

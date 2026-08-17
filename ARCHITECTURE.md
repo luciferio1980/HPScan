@@ -24,7 +24,7 @@ El controlador WIA de la serie TS5100:
 - En red **no expone brillo/contraste**. La app aplica exposición por software (ImageSharp) y lo indica en la UI.
 - La platina es la única fuente real. No se inventa un ADF.
 
-La resolución óptica del hardware es 1200×2400. La UI ofrece **1200 dpi** para la serie TS5100; WIA en red puede seguir limitando el hardware a 600.
+La resolución óptica del hardware es 1200×2400. **La UI solo ofrece un DPI si el backend lo anuncia** (eSCL/WIA/TWAIN). En Wi-Fi eSCL el TS5100 suele listar como máximo 600; 1200 aparece en USB cuando el MP Driver lo declara.
 
 ## Capas
 

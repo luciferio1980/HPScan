@@ -66,18 +66,85 @@ public class NetworkLocatorAndEsclTests
     }
 
     [Fact]
-    public void Escl_capabilities_include_1200_dpi()
+    public void Parses_discrete_resolutions_without_inventing_1200()
     {
-        var backend = new EsclScannerBackend(new InMemoryLog());
-        backend.GetCapabilities("escl:192.168.1.10").ResolutionsDpi.Should().Contain(1200);
-        backend.GetCapabilities("escl:192.168.1.10").ResolutionsDpi.Should().Contain(600);
+        var xml = """
+            <?xml version="1.0"?>
+            <scan:ScannerCapabilities xmlns:scan="http://schemas.hp.com/imaging/escl/2011/05/03" xmlns:pwg="http://www.pwg.org/schemas/2010/12/sm">
+              <pwg:MakeAndModel>Canon TS5100 series</pwg:MakeAndModel>
+              <scan:Platen>
+                <scan:PlatenInputCaps>
+                  <scan:MaxWidth>2550</scan:MaxWidth>
+                  <scan:MaxHeight>3508</scan:MaxHeight>
+                  <scan:SettingProfiles>
+                    <scan:SettingProfile>
+                      <scan:SupportedResolutions>
+                        <scan:DiscreteResolutions>
+                          <scan:DiscreteResolution>
+                            <scan:XResolution>75</scan:XResolution>
+                            <scan:YResolution>75</scan:YResolution>
+                          </scan:DiscreteResolution>
+                          <scan:DiscreteResolution>
+                            <scan:XResolution>300</scan:XResolution>
+                            <scan:YResolution>300</scan:YResolution>
+                          </scan:DiscreteResolution>
+                          <scan:DiscreteResolution>
+                            <scan:XResolution>600</scan:XResolution>
+                            <scan:YResolution>600</scan:YResolution>
+                          </scan:DiscreteResolution>
+                        </scan:DiscreteResolutions>
+                      </scan:SupportedResolutions>
+                    </scan:SettingProfile>
+                  </scan:SettingProfiles>
+                </scan:PlatenInputCaps>
+              </scan:Platen>
+            </scan:ScannerCapabilities>
+            """;
+        var parsed = EsclCapabilitiesParser.Parse(xml);
+        parsed.ResolutionsDpi.Should().Equal(75, 300, 600);
+        parsed.ResolutionsDpi.Should().NotContain(1200);
     }
 
     [Fact]
-    public void Ts5151_resolution_presets_keep_1200()
+    public void Range_max_1200_includes_1200()
     {
-        ResolutionPresets.ForTs5151([150, 300, 600]).Should().Contain(1200);
-        ResolutionPresets.Standard.Should().Equal(75, 150, 200, 300, 600, 1200);
+        var xml = """
+            <scan:ScannerCapabilities xmlns:scan="http://schemas.hp.com/imaging/escl/2011/05/03">
+              <scan:XResolutionRange>
+                <scan:Min>75</scan:Min>
+                <scan:Max>1200</scan:Max>
+              </scan:XResolutionRange>
+            </scan:ScannerCapabilities>
+            """;
+        EsclCapabilitiesParser.Parse(xml).ResolutionsDpi.Should().Contain(1200);
+        EsclCapabilitiesParser.Parse(xml).ResolutionsDpi.Should().Contain(600);
+    }
+
+    [Fact]
+    public void Advertised_resolutions_are_not_padded_with_1200()
+    {
+        ResolutionPresets.UntilDeviceReady.Should().Equal(75, 150, 300, 600);
+        ResolutionPresets.MergeAdvertised([150, 300, 600]).Should().Equal(150, 300, 600);
+        ResolutionPresets.MergeAdvertised([150, 300, 600]).Should().NotContain(1200);
+        ResolutionPresets.MergeAdvertised([75, 300, 600, 1200]).Should().Contain(1200);
+        ResolutionPresets.MergeAdvertised(null).Should().Equal(ResolutionPresets.UntilDeviceReady);
+    }
+
+    [Theory]
+    [InlineData(2480, 8.27, 300)]
+    [InlineData(4961, 8.27, 600)]
+    [InlineData(9924, 8.27, 1200)]
+    public void Infers_dpi_from_pixel_width(int pixels, double inches, int expected)
+    {
+        ResolutionPresets.InferFromPixels(pixels, inches).Should().Be(expected);
+    }
+
+    [Fact]
+    public void Detects_jpeg_magic()
+    {
+        EsclProtocol.IsImageBytes([0xFF, 0xD8, 0xFF, 0xE0]).Should().BeTrue();
+        EsclProtocol.IsImageBytes("<html>"u8.ToArray()).Should().BeFalse();
+        EsclProtocol.FormatHint([0xFF, 0xD8]).Should().Be("jpeg");
     }
 
     [Fact]

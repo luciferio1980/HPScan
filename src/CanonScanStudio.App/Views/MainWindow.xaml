@@ -54,36 +54,29 @@
                     <TextBlock Text="{Binding DeviceStatusText}" VerticalAlignment="Center" />
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button Content="⚙  Configuración" Style="{StaticResource LinkButton}" Command="{Binding OpenSettingsCommand}" Margin="0,0,16,0" />
-                    <Button Content="?  Ayuda" Style="{StaticResource LinkButton}" Command="{Binding OpenHelpCommand}" />
+                    <Button Content="Configuración" Style="{StaticResource LinkButton}" Command="{Binding OpenSettingsCommand}" Margin="0,0,16,0" />
+                    <Button Content="Ayuda" Style="{StaticResource LinkButton}" Command="{Binding OpenHelpCommand}" />
                 </StackPanel>
             </Grid>
         </Border>
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="280" />
+                <ColumnDefinition Width="260" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <Border Background="{StaticResource SettingsBg}" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="0,0,1,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="16,12">
-                        <DockPanel>
-                            <Button DockPanel.Dock="Right" Content="Más &gt;" Style="{StaticResource LinkButton}" Command="{Binding OpenDiagnosticsCommand}" />
-                            <TextBlock Text="Ajustes" Style="{StaticResource SectionTitle}" />
-                        </DockPanel>
+                        <TextBlock Text="Ajustes" Style="{StaticResource SectionTitle}" />
 
                         <TextBlock Text="Escáner" Style="{StaticResource FieldLabel}" />
                         <ComboBox ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}" DisplayMemberPath="DisplayName" />
-                        <Button Content="Actualizar dispositivos" Style="{StaticResource LinkButton}" Command="{Binding RefreshDevicesCommand}" Margin="0,4,0,0" HorizontalAlignment="Left" />
-                        <Button Content="Elegir escáner de Windows" Style="{StaticResource LinkButton}" Command="{Binding PickWindowsScannerCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
-                        <Button Content="Selector de red Canon (Wi-Fi)" Style="{StaticResource LinkButton}" Command="{Binding OpenNetworkSelectorCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
-                        <Button Content="Descargar MP Driver Canon" Style="{StaticResource LinkButton}" Command="{Binding OpenCanonDriverCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
-                        <Button Content="Impresoras y escáneres" Style="{StaticResource LinkButton}" Command="{Binding OpenWindowsPrintersCommand}" Margin="0,2,0,0" HorizontalAlignment="Left" />
+                        <Button Content="Actualizar" Style="{StaticResource LinkButton}" Command="{Binding RefreshDevicesCommand}" Margin="0,4,0,0" HorizontalAlignment="Left" />
 
                         <TextBlock Text="Fuente" Style="{StaticResource FieldLabel}" />
-                        <ComboBox SelectedIndex="0" IsEnabled="True">
+                        <ComboBox SelectedIndex="0">
                             <ComboBoxItem Content="Platina / Flatbed" />
                         </ComboBox>
 
@@ -116,87 +109,61 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Girar página" Style="{StaticResource SectionTitle}" />
-                        <StackPanel Orientation="Horizontal">
-                            <Button Content="↶  Izquierda" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,8" Command="{Binding RotateLeftCommand}" ToolTip="Girar 90° a la izquierda" Margin="0,0,8,0" />
-                            <Button Content="Derecha  ↷" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,8" Command="{Binding RotateRightCommand}" ToolTip="Girar 90° a la derecha" />
-                        </StackPanel>
+                        <CheckBox Content="Exposición automática" IsChecked="{Binding AutoExposure}" Margin="0,16,0,8" />
 
-                        <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Exposición" Style="{StaticResource SectionTitle}" />
-                        <CheckBox Content="Exposición automática" IsChecked="{Binding AutoExposure}" Margin="0,0,0,8" />
-                        <TextBlock Text="Brillo" Style="{StaticResource FieldLabel}" />
-                        <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
-                            <Slider Minimum="-100" Maximum="100" Value="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
-                        </DockPanel>
-                        <TextBlock Text="Contraste" Style="{StaticResource FieldLabel}" />
-                        <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
-                            <Slider Minimum="-100" Maximum="100" Value="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
-                        </DockPanel>
-                        <TextBlock Text="Tonos medios / Gamma" Style="{StaticResource FieldLabel}" />
-                        <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Gamma}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
-                            <Slider Minimum="-100" Maximum="100" Value="{Binding Gamma}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
-                        </DockPanel>
-                        <TextBlock Text="Los ajustes de exposición se aplican a la imagen después del escaneo." FontSize="10" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                        <Expander Header="Más opciones" IsExpanded="{Binding ShowAdvanced}" Margin="0,8,0,0">
+                            <StackPanel Margin="0,8,0,0">
+                                <TextBlock Text="Brillo" Style="{StaticResource FieldLabel}" />
+                                <DockPanel>
+                                    <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
+                                    <Slider Minimum="-100" Maximum="100" Value="{Binding Brightness}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
+                                </DockPanel>
+                                <TextBlock Text="Contraste" Style="{StaticResource FieldLabel}" />
+                                <DockPanel>
+                                    <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
+                                    <Slider Minimum="-100" Maximum="100" Value="{Binding Contrast}" IsEnabled="{Binding AutoExposure, Converter={StaticResource InvertBool}}" />
+                                </DockPanel>
+                                <TextBlock Text="Enderezar" Style="{StaticResource FieldLabel}" />
+                                <DockPanel>
+                                    <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding DeskewAngle, StringFormat=0.0}" />
+                                    <Slider Minimum="-10" Maximum="10" Value="{Binding DeskewAngle}" SmallChange="0.5" />
+                                </DockPanel>
+                                <Button Content="Detectar inclinación" Style="{StaticResource LinkButton}" Command="{Binding AutoDeskewCommand}" HorizontalAlignment="Left" Margin="0,4,0,8" />
 
-                        <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Enderezar documento" Style="{StaticResource SectionTitle}" />
-                        <DockPanel>
-                            <TextBox DockPanel.Dock="Right" Width="44" Text="{Binding DeskewAngle, StringFormat=0.0}" />
-                            <Slider Minimum="-10" Maximum="10" Value="{Binding DeskewAngle}" SmallChange="0.5" />
-                        </DockPanel>
-                        <Button Content="Detectar inclinación" Style="{StaticResource LinkButton}" Command="{Binding AutoDeskewCommand}" HorizontalAlignment="Left" Margin="0,4,0,0" />
+                                <WrapPanel>
+                                    <Button Content="Recortar" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="10,6" Margin="0,0,8,8" Command="{Binding DetectDocumentCommand}" />
+                                    <Button Content="Aplicar recorte" Style="{StaticResource PrimaryButton}" MinWidth="0" Padding="10,6" Margin="0,0,8,8" Command="{Binding ApplyCropCommand}" />
+                                </WrapPanel>
+                                <WrapPanel>
+                                    <Button Content="180°" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding Rotate180Command}" />
+                                    <Button Content="Voltear H" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding FlipHorizontalCommand}" />
+                                    <Button Content="Voltear V" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding FlipVerticalCommand}" />
+                                    <Button Content="Duplicar" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding DuplicateSelectedCommand}" />
+                                    <Button Content="Grises" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding GrayscaleCommand}" />
+                                    <Button Content="B/N" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding BlackAndWhiteCommand}" />
+                                </WrapPanel>
 
-                        <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Recorte" Style="{StaticResource SectionTitle}" />
-                        <WrapPanel>
-                            <Button Content="Detectar automáticamente" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="10,6" Margin="0,0,8,8" Command="{Binding DetectDocumentCommand}" />
-                            <Button Content="Aplicar recorte" Style="{StaticResource PrimaryButton}" MinWidth="0" Padding="10,6" Margin="0,0,8,8" Command="{Binding ApplyCropCommand}" />
-                            <Button Content="Cancelar" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="10,6" Margin="0,0,8,8" Command="{Binding CancelCropCommand}" />
-                        </WrapPanel>
+                                <CheckBox Content="Reconocer texto (OCR)" IsChecked="{Binding OcrEnabled}" Margin="0,8,0,0" />
+                                <ComboBox Margin="0,6,0,0" ItemsSource="{Binding LanguageOptions}" SelectedValue="{Binding SelectedOcrLanguage}" SelectedValuePath="Code" DisplayMemberPath="DisplayName" />
 
-                        <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Edición" Style="{StaticResource SectionTitle}" />
-                        <WrapPanel>
-                            <Button Content="180°" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding Rotate180Command}" />
-                            <Button Content="Voltear H" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding FlipHorizontalCommand}" />
-                            <Button Content="Voltear V" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding FlipVerticalCommand}" />
-                            <Button Content="Grises" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding GrayscaleCommand}" />
-                            <Button Content="B/N" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding BlackAndWhiteCommand}" />
-                            <Button Content="Invertir" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding InvertCommand}" />
-                            <Button Content="Mejorar" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding EnhanceCommand}" />
-                            <Button Content="Quitar bordes" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding RemoveBordersCommand}" />
-                            <Button Content="Restablecer edición" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="8,6" Margin="0,0,6,6" Command="{Binding ResetEditCommand}" />
-                        </WrapPanel>
-
-                        <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Reconocimiento de texto" Style="{StaticResource SectionTitle}" />
-                        <CheckBox Content="Activar OCR" IsChecked="{Binding OcrEnabled}" />
-                        <ComboBox Margin="0,6,0,0" ItemsSource="{Binding LanguageOptions}" SelectedValue="{Binding SelectedOcrLanguage}" SelectedValuePath="Code" DisplayMemberPath="DisplayName" />
-
-                        <Separator Style="{StaticResource Hairline}" />
-                        <TextBlock Text="Destino" Style="{StaticResource SectionTitle}" />
-                        <TextBlock Text="Tipo de archivo" Style="{StaticResource FieldLabel}" />
-                        <ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource EnumDisplay}}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <TextBlock Text="Enviar a" Style="{StaticResource FieldLabel}" />
-                        <ComboBox ItemsSource="{Binding Destinations}" SelectedItem="{Binding SelectedDestination}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource EnumDisplay}}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <TextBlock Text="El envío por correo electrónico se dejará para una versión posterior." FontSize="10" Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                <TextBlock Text="Guardar como" Style="{StaticResource FieldLabel}" />
+                                <ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding SelectedFormat}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumDisplay}}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                                <TextBlock Text="Enviar a" Style="{StaticResource FieldLabel}" />
+                                <ComboBox ItemsSource="{Binding Destinations}" SelectedItem="{Binding SelectedDestination}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource EnumDisplay}}" />
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+                        </Expander>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
@@ -211,8 +178,6 @@
                     <TextBlock Text="{Binding ZoomLabel}" VerticalAlignment="Center" Margin="4,0,8,0" Width="48" TextAlignment="Center" />
                     <Button Content="+" Style="{StaticResource IconButton}" Width="32" Height="28" Command="{Binding ZoomInCommand}" />
                     <Button Content="Ajustar" Style="{StaticResource SecondaryButton}" MinWidth="72" Padding="10,4" Command="{Binding FitToWindowCommand}" />
-                    <Button Content="↶  Girar izquierda" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,6" Command="{Binding RotateLeftCommand}" ToolTip="Girar 90° a la izquierda" Margin="16,0,8,0" />
-                    <Button Content="Girar derecha  ↷" Style="{StaticResource SecondaryButton}" MinWidth="0" Padding="12,6" Command="{Binding RotateRightCommand}" ToolTip="Girar 90° a la derecha" />
                 </StackPanel>
                 <ScrollViewer x:Name="PageStripScroll"
                               Grid.Row="1"
@@ -283,26 +248,17 @@
                                 Content="{Binding AddPageLabel}"
                                 Command="{Binding ScanCommand}"
                                 IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}"
-                                ToolTip="Escanea otra página y la añade a la derecha" />
+                                ToolTip="Escanea una página y la añade al documento" />
                     </StackPanel>
                 </ScrollViewer>
             </Grid>
         </Grid>
 
         <Border Grid.Row="2" Background="#FFF8E1" Padding="12,8" Visibility="{Binding ErrorBanner, Converter={StaticResource NullVis}}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Text="{Binding ErrorBanner}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
-                <WrapPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center">
-                    <Button Content="Reintentar" Style="{StaticResource PrimaryButton}" Command="{Binding RefreshDevicesCommand}" Margin="0,4,8,4" />
-                    <Button Content="Elegir escáner de Windows" Style="{StaticResource SecondaryButton}" Command="{Binding PickWindowsScannerCommand}" Margin="0,4,8,4" />
-                    <Button Content="Selector de red Canon" Style="{StaticResource SecondaryButton}" Command="{Binding OpenNetworkSelectorCommand}" Margin="0,4,8,4" />
-                    <Button Content="Descargar driver Canon" Style="{StaticResource SecondaryButton}" Command="{Binding OpenCanonDriverCommand}" Margin="0,4,0,4" />
-                </WrapPanel>
-            </Grid>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="Actualizar" Style="{StaticResource SecondaryButton}" Command="{Binding RefreshDevicesCommand}" Margin="12,0,0,0" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding ErrorBanner}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DockPanel>
         </Border>
 
         <Border Grid.Row="3" Background="White" BorderBrush="{StaticResource BorderBrushSubtle}" BorderThickness="0,1,0,0">
@@ -319,10 +275,11 @@
                             <TextBlock Text="Escanear" />
                         </StackPanel>
                     </Button>
-                    <Button Content="Añadir página" Style="{StaticResource SecondaryButton}" Command="{Binding ScanCommand}" IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}" Margin="8,0,0,0" Visibility="{Binding HasPages, Converter={StaticResource BoolVis}}" />
-                    <Button Content="Importar" Style="{StaticResource SecondaryButton}" Command="{Binding ImportCommand}" Margin="8,0,0,0" />
+                    <Button Content="Añadir página" Style="{StaticResource SecondaryButton}" Command="{Binding ScanCommand}" IsEnabled="{Binding IsScanning, Converter={StaticResource InvertBool}}" Margin="8,0,0,0" />
                     <Button Content="Eliminar" Style="{StaticResource SecondaryButton}" Command="{Binding DeleteSelectedCommand}" Margin="8,0,0,0" />
-                    <Button Content="Duplicar" Style="{StaticResource SecondaryButton}" Command="{Binding DuplicateSelectedCommand}" Margin="8,0,0,0" />
+                    <Button Content="↶  Girar" Style="{StaticResource SecondaryButton}" Command="{Binding RotateLeftCommand}" ToolTip="Girar 90° a la izquierda" Margin="8,0,0,0" MinWidth="0" />
+                    <Button Content="Girar  ↷" Style="{StaticResource SecondaryButton}" Command="{Binding RotateRightCommand}" ToolTip="Girar 90° a la derecha" Margin="8,0,0,0" MinWidth="0" />
+                    <Button Content="Importar" Style="{StaticResource SecondaryButton}" Command="{Binding ImportCommand}" Margin="8,0,0,0" />
                 </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock Text="{Binding PageCounter}" HorizontalAlignment="Center" />
@@ -331,7 +288,6 @@
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
                     <Button Content="Guardar" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}" />
-                    <Button Content="Rápido" Style="{StaticResource SecondaryButton}" Command="{Binding QuickSaveCommand}" Margin="8,0,0,0" />
                     <Button Content="Salir" Style="{StaticResource SecondaryButton}" Command="{Binding ExitCommand}" Margin="8,0,0,0" />
                 </StackPanel>
             </Grid>

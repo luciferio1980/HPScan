@@ -8,7 +8,7 @@ Paquete listo para Windows 10/11 **64 bits**. No hace falta instalar .NET:
 
 **https://github.com/luciferio1980/HPScan/releases/latest**
 
-Descarga la versión **1.0.6 o superior**:
+Descarga la versión **1.0.7 o superior**:
 
 1. **CanonScanStudio-Setup.exe** — instalador con acceso directo
 2. **CanonScanStudio-Portable-win-x64.zip** — descomprime la carpeta y abre `CanonScanStudio.exe`
@@ -43,7 +43,7 @@ Esta aplicación **no instala ni redistribuye** controladores de Canon.
    - USB: `Canon TS5100 series`
    - Red: `TS5100 series_<MAC>`
 
-No hace falta que el nombre sea exactamente `Canon PIXMA TS5151`. En la app puedes pulsar **Elegir escáner de Windows** o **Descargar MP Driver Canon**.
+No hace falta que el nombre sea exactamente `Canon PIXMA TS5151`. Driver y Selector de red están en **Configuración**.
 
 ## Cómo conectar el TS5151
 
@@ -116,7 +116,7 @@ Ver [TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 1. Encender el TS5151.
 2. Abrir Canon Scan Studio.
 3. El programa detecta `Canon TS5100 series` (o similar).
-4. A4, 300 DPI, Color.
+4. A4, resolución de la lista (en Wi-Fi suele ser hasta 600 DPI), Color.
 5. **Escanear** — el hardware realiza el escaneo (no hay simulación).
 6. Recortar, girar, brillo/contraste.
 7. Escanear otra página, reordenar miniaturas.

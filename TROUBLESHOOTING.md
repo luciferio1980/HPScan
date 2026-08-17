@@ -39,9 +39,12 @@ Es una limitación del **controlador WIA de Canon en red**, no de esta aplicaci�
 
 ## 1200 DPI
 
-El PIXMA TS5151 tiene CIS óptico **1200×2400**. La lista incluye 75, 150, 200, 300, 600 y **1200**.
+El CIS óptico del TS5151 es 1200×2400, pero **la lista de la app solo muestra lo que anuncia esa conexión**.
 
-En Wi-Fi, WIA a veces solo admite 600: si eliges 1200 y el controlador lo rechaza, la imagen puede salir a 600. Por red (eSCL) se pide 1200 al aparato. Un A4 a 1200 es mucho más pesado y lento que a 300.
+- **Wi-Fi (eSCL):** el TS5100 suele publicar como máximo **600 DPI**. Elegir 1200 fallaba; ya no se ofrece si el escáner no lo lista.
+- **USB / WIA:** 1200 aparece si el MP Driver lo declara.
+
+Tras escanear, la etiqueta de la página muestra píxeles y DPI reales de la imagen (no el valor pedido si el aparato entregó otro).
 
 ## TWAIN no lista el dispositivo
 

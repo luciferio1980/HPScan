@@ -215,13 +215,10 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
 
             if (resolutions.Count == 0)
             {
-                _log.Warn($"El controlador WIA de '{name}' no ha publicado resoluciones. Se consultará al escanear.");
+                _log.Warn($"El controlador WIA de '{name}' no ha publicado resoluciones. Se usará 75–600 DPI hasta que el controlador informe.");
             }
 
-            if (DeviceMatcher.IsCanonTs5100Family(name))
-            {
-                resolutions = ResolutionPresets.ForTs5151(resolutions);
-            }
+            resolutions = ResolutionPresets.MergeAdvertised(resolutions).ToList();
 
             var colorModes = ReadColorModes(itemProps);
             var bedWidth = ReadBedInches(deviceProps, WiaConstants.DpsHorizontalBedSize, 8.5);
