@@ -30,7 +30,9 @@ public static class DeviceMatcher
         "scangear",
         "pixma",
         "flatbed",
-        "platina"
+        "platina",
+        "ts5100",
+        "network"
     ];
 
     public static bool IsCanonTs5100Family(string? name)
@@ -75,6 +77,7 @@ public static class DeviceMatcher
         if (name.Contains("canon", StringComparison.Ordinal)) score += 20;
         if (device.Interface == ScannerInterfaceKind.Wia) score += 10;
         if (device.Interface == ScannerInterfaceKind.WindowsScan) score += 8;
+        if (device.Interface == ScannerInterfaceKind.Escl) score += 12;
         if (device.IsAvailable) score += 5;
         if (device.Connection == ScannerConnectionKind.Usb) score += 2;
         return score;
@@ -118,7 +121,8 @@ public static class DeviceMatcher
         }
 
         if (haystack.Contains("wpd") || haystack.Contains("network") || haystack.Contains("wlan") ||
-            haystack.Contains("wifi") || haystack.Contains("wi-fi") || LooksLikeMacSuffix(name))
+            haystack.Contains("wifi") || haystack.Contains("wi-fi") || haystack.Contains("escl") ||
+            haystack.Contains("red") || LooksLikeMacSuffix(name) || LooksLikeMacAddress(haystack))
         {
             return ScannerConnectionKind.Network;
         }
@@ -140,5 +144,17 @@ public static class DeviceMatcher
         var parts = name.Split('_', StringSplitOptions.RemoveEmptyEntries);
         return parts.Length >= 2 && parts[^1].Length is >= 8 and <= 16 &&
                parts[^1].All(c => Uri.IsHexDigit(c));
+    }
+
+    public static bool LooksLikeMacAddress(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return false;
+        }
+
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            value,
+            @"(?:[0-9A-Fa-f]{2}[:\-]){5}[0-9A-Fa-f]{2}");
     }
 }

@@ -19,6 +19,7 @@ public sealed class ScanDevice
         ScannerInterfaceKind.Wia => "WIA",
         ScannerInterfaceKind.Twain => "TWAIN",
         ScannerInterfaceKind.WindowsScan => "Windows",
+        ScannerInterfaceKind.Escl => "Red (eSCL)",
         _ => "Automático"
     };
 }

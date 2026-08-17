@@ -97,7 +97,7 @@ public sealed class ScannerService : IScannerService
         }
 
         _log.Info(distinct.Count == 0
-            ? "No se han detectado escáneres WIA/TWAIN."
+            ? "No se han detectado escáneres (WIA/TWAIN/Windows/eSCL)."
             : $"Dispositivos detectados: {string.Join(", ", distinct.Select(d => $"{d.Name} ({d.InterfaceLabel})"))}");
 
         Changed?.Invoke(this, EventArgs.Empty);
@@ -264,9 +264,9 @@ public sealed class ScannerService : IScannerService
         };
         if (devices.Count == 0)
         {
-            notes.Add("Windows no ha publicado ningún escáner. Que la impresora imprima no basta: hace falta el MP Driver de la serie TS5100 (incluye WIA/ScanGear), no solo añadir la impresora.");
+            notes.Add("Windows no ha publicado ningún escáner WIA. El Selector EX2 puede ver el TS5100 en la red y aun así WIA queda vacío: pulsa Aceptar en el Selector y esta app intentará eSCL (AirPrint) con la IP de la impresora o de ARP.");
             notes.Add("Descarga: https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers");
-            notes.Add("En Wi-Fi: misma red que el PC, luego IJ Network Scanner Selector EX → marca TS5100 series → OK. Después Actualizar dispositivos o Elegir escáner de Windows.");
+            notes.Add("En Wi-Fi: misma red, Selector EX2 → TS5100 → Aceptar. El encabezado «Ningún escáner / No disponible» significa que aún no hay dispositivo listo, no que esté bloqueado.");
             notes.Add("Cierra IJ Scan Utility, Fax y Escáner u otra app que tenga el dispositivo abierto.");
         }
         else
@@ -306,6 +306,13 @@ public sealed class ScannerService : IScannerService
         _backends.FirstOrDefault(b => b.Interface == device.Interface)
         ?? throw new ScannerException($"No hay backend para {device.InterfaceLabel}.");
 
-    private static bool Matches(IScannerBackend backend, ScannerInterfaceKind preference) =>
-        preference == ScannerInterfaceKind.Auto || backend.Interface == preference;
+    private static bool Matches(IScannerBackend backend, ScannerInterfaceKind preference)
+    {
+        if (backend.Interface == ScannerInterfaceKind.Escl)
+        {
+            return true;
+        }
+
+        return preference == ScannerInterfaceKind.Auto || backend.Interface == preference;
+    }
 }

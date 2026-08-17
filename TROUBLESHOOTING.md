@@ -11,20 +11,16 @@
 
 ## El programa no detecta el escáner / la impresora
 
-Windows puede imprimir y aun así **no publicar el escáner**. Canon Scan Studio necesita el dispositivo de **escaneo** (WIA, TWAIN o Windows Scan), no solo la cola de impresión.
+Si el encabezado dice **Ningún escáner · Sin dispositivo · No disponible**, la app **no** tiene un dispositivo de escaneo. El Selector EX2 puede ver el TS5100 (MAC) y aun así Windows WIA no publicarlo.
 
-Driver oficial del PIXMA TS5151 (elige **MP Drivers** de la serie TS5100, no un paquete solo de impresora):
+1. En el Selector EX2 marca el TS5100 y pulsa **Aceptar** (no dejes el cuadro abierto).
+2. En Canon Scan Studio pulsa **Reintentar**. A partir de 1.0.5 se busca también por **red eSCL** usando la IP de la impresora o la tabla ARP (p. ej. MAC `6C:F2:D8:…`).
+3. El dispositivo puede aparecer como `Canon TS5100 series (Wi-Fi)`, no como TS5151.
+4. Cierra IJ Scan Utility si está abierto.
 
-https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers&detailId=tcm:86-1604954&productTcmUri=tcm:86-1604881
+Driver oficial: https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers
 
-1. La impresora debe estar **encendida**.
-2. USB bien conectado, o el PC en la **misma red Wi-Fi**.
-3. Instala el **MP Driver** de esa página (instalador completo de Canon). Esta app no lo incluye ni puede detectarlo sin él.
-4. **Wi-Fi:** después del driver, abre **IJ Network Scanner Selector EX** (viene con el MP Driver), marca `Canon TS5100 series` y pulsa **OK**. Sin este paso Windows suele ver la impresora y no el escáner.
-5. En Windows: *Configuración → Bluetooth e dispositivos → Impresoras y escáneres*. Debe verse un **escáner**, a menudo `Canon TS5100 series` o `TS5100 series_<MAC>`, no exactamente TS5151.
-6. En Canon Scan Studio: **Elegir escáner de Windows**, o **F5** / *Actualizar dispositivos*.
-7. Cierra IJ Scan Utility, Fax y Escáner u otra app que tenga abierto el dispositivo.
-8. *Ajustes → Más* (diagnóstico): ahí se listan los dispositivos que Windows sí ve y si el MP Driver parece instalado.
+Windows puede imprimir y aun así no publicar WIA. Esta app necesita WIA, TWAIN, Windows Scan **o** eSCL.
 
 ## No se puede acceder al escáner
 

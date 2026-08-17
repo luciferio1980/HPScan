@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.4
-          name: Canon Scan Studio 1.0.4
+          tag_name: v1.0.5
+          name: Canon Scan Studio 1.0.5
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -96,10 +96,10 @@ jobs:
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
 
-            ## Novedades 1.0.4
-            - Si Windows no ve el escáner: botones para **descargar el MP Driver de Canon**, **elegir el escáner de Windows** y abrir el **Selector de red Canon** (imprescindible en Wi-Fi).
-            - Enlace directo a la página oficial del PIXMA TS5151 (serie TS5100).
-            - Reintentar vuelve a buscar dispositivos en lugar de escanear en vacío.
+            ## Novedades 1.0.5
+            - El encabezado ya no muestra «Canon PIXMA TS5151» si no hay escáner (eso parecía detectado y «No disponible»).
+            - Si el Selector EX2 ve el TS5100 en Wi-Fi pero WIA no lo lista, la app busca la IP (impresora/ARP) y escanea por **eSCL** (AirPrint).
+            - No abre una segunda ventana del Selector si ya está abierto: hay que pulsar **Aceptar** y luego Reintentar.
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo
@@ -107,12 +107,11 @@ jobs:
 
             ## Uso
             1. Enciende el Canon PIXMA TS5151.
-            2. Instala el **MP Driver** oficial de la serie TS5100 (imprimir no basta): https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers
-            3. En Wi-Fi abre **IJ Network Scanner Selector EX**, marca el TS5100 y pulsa OK.
-            4. Abre Canon Scan Studio y pulsa **Escanear**.
-            5. Pulsa **Añadir página** o la tarjeta **+** para escanear la siguiente hoja.
+            2. En Wi-Fi: Selector EX2 → marca TS5100 → **Aceptar**.
+            3. Abre Canon Scan Studio 1.0.5 y pulsa **Reintentar**. Debería aparecer `Canon TS5100 series (Wi-Fi)`.
+            4. Pulsa **Escanear**.
 
-            Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas* (el ejecutable no está firmado con certificado de código).
+            Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas*.
 
             Esta versión no incluye controladores de Canon.
         env:

@@ -22,8 +22,37 @@ public static class CanonSetupHelper
 
     public static void OpenWindowsPrinters() => OpenUrl("ms-settings:printers");
 
+    public static bool IsNetworkSelectorRunning()
+    {
+        try
+        {
+            return Process.GetProcesses().Any(p =>
+            {
+                try
+                {
+                    var n = p.ProcessName;
+                    return n.Contains("CNMNSST", StringComparison.OrdinalIgnoreCase) ||
+                           n.Contains("CNMSST", StringComparison.OrdinalIgnoreCase);
+                }
+                catch
+                {
+                    return false;
+                }
+            });
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static bool TryOpenNetworkSelector()
     {
+        if (IsNetworkSelectorRunning())
+        {
+            return true;
+        }
+
         var path = FindNetworkSelector();
         if (path is null)
         {
@@ -50,7 +79,7 @@ public static class CanonSetupHelper
             "IJNetworkScannerSelectorEX"
         ];
 
-        string[] exes = ["CNMNSST.exe", "IJNetworkScannerSelectorEX.exe", "NSE.exe"];
+        string[] exes = ["CNMNSST2.exe", "CNMNSST.exe", "CNMSST2.exe", "IJNetworkScannerSelectorEX.exe", "NSE.exe"];
 
         foreach (var root in roots.Where(Directory.Exists))
         {
@@ -117,7 +146,7 @@ public static class CanonSetupHelper
 
         if (printers.Count > 0)
         {
-            lines.Add("Windows sí ve estas colas de impresión: " + string.Join(", ", printers) + ". Eso no implica que el escáner esté instalado.");
+            lines.Add("Windows sí ve estas colas de impresión: " + string.Join(", ", printers) + ". Se intentará escanear por red (eSCL) con la IP de esa impresora.");
         }
 
         return string.Join(Environment.NewLine, lines);

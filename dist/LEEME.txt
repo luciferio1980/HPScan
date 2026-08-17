@@ -1,4 +1,4 @@
-Canon Scan Studio 1.0.4
+Canon Scan Studio 1.0.5
 =======================
 
 Aplicación de escaneo para Windows 10/11 (64 bits), pensada para el Canon PIXMA TS5151.
@@ -7,15 +7,14 @@ CÓMO USARLA
 -----------
 1. Enciende la impresora/escáner.
 2. Conéctala por USB o a la misma red Wi-Fi.
-3. Si Windows no detecta el escáner, instala el MP Driver oficial de Canon
-   para la serie TS5100 (esta aplicación no incluye controladores de Canon):
-   https://www.canon.es/support/consumer/products/printers/pixma/ts-series/pixma-ts5151.html?type=drivers
-4. En Wi-Fi: abre IJ Network Scanner Selector EX, marca el TS5100 y pulsa OK.
-5. Abre CanonScanStudio.exe. Si no aparece, usa «Elegir escáner de Windows»
-   o «Descargar driver Canon».
-6. Elige 300 DPI y Color, pulsa Escanear y guarda en PDF.
+3. En Wi-Fi: abre IJ Network Scanner Selector EX2, marca el TS5100
+   y pulsa Aceptar. Luego Reintentar en esta app.
+4. Si Windows no lista el escáner WIA, 1.0.5 busca la IP de la impresora
+   y escanea por red (eSCL / AirPrint).
+5. Elige 300 DPI y Color, pulsa Escanear y guarda en PDF.
 
-El dispositivo puede aparecer como "Canon TS5100 series", no exactamente "TS5151".
+Si el encabezado dice "Ningún escáner" / "No disponible", todavía no hay
+dispositivo de escaneo listo (no está bloqueado: no se ha detectado).
 
 SI NO SE ABRE
 -------------
@@ -28,7 +27,8 @@ REQUISITOS
 ----------
 - Windows 10 o Windows 11, 64 bits
 - No necesitas instalar .NET (va incluido en este paquete)
-- Controlador oficial de Canon (MP Driver / WIA)
+- Controlador oficial de Canon (MP Driver) para WIA; eSCL funciona si
+  la impresora está en la misma Wi-Fi aunque WIA no la liste.
 
 AVISO DE WINDOWS (SmartScreen)
 ------------------------------

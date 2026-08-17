@@ -53,6 +53,7 @@ public partial class DiagnosticsWindow : Window
         }
         builder.AppendLine();
         builder.AppendLine(CanonSetupHelper.BuildHint());
+        builder.AppendLine(CanonScanStudio.Scanning.Network.CanonNetworkLocator.BuildSummary());
         builder.AppendLine();
         builder.AppendLine("Driver oficial TS5151: " + CanonSetupHelper.DriverPageUrl);
         builder.AppendLine("Registro: " + _log.LogDirectory);

@@ -110,7 +110,7 @@ public sealed partial class MainViewModel : ObservableObject
     public bool HasPreview => SelectedPage?.Preview is not null;
     public bool HasSelectedPage => SelectedPage is not null;
     public string AddPageLabel => Pages.Count == 0 ? "Escanear página" : "Añadir página";
-    public string ScannerLabel => SelectedDevice?.DisplayName ?? "Canon PIXMA TS5151";
+    public string ScannerLabel => SelectedDevice?.DisplayName ?? "Ningún escáner";
     public string ConnectionLabel => SelectedDevice?.Connection switch
     {
         ScannerConnectionKind.Usb => "USB",
@@ -134,11 +134,13 @@ public sealed partial class MainViewModel : ObservableObject
         if (SelectedDevice is null)
         {
             ErrorBanner =
-                "No se ha detectado el escáner del PIXMA TS5151."
+                "No hay ningún escáner de Windows conectado (WIA vacío). El nombre del producto no significa que esté detectado."
                 + Environment.NewLine + Environment.NewLine
                 + CanonSetupHelper.BuildHint()
+                + Environment.NewLine
+                + CanonScanStudio.Scanning.Network.CanonNetworkLocator.BuildSummary()
                 + Environment.NewLine + Environment.NewLine
-                + "Instala el MP Driver de la serie TS5100 (no basta con que imprima). En Wi-Fi abre el Selector de red Canon, marca el TS5100 y pulsa OK. Luego Reintentar o Elegir escáner de Windows.";
+                + "En el Selector EX2 marca el TS5100 y pulsa Aceptar (no dejes la ventana abierta). Luego Reintentar. Si imprime por Wi-Fi, esta versión busca el escáner por red (eSCL) usando la IP de la impresora.";
         }
         else
         {
@@ -160,7 +162,7 @@ public sealed partial class MainViewModel : ObservableObject
             if (_scanner.SelectedDevice is null)
             {
                 ShowScannerError(new ScannerException(
-                    "No se ha detectado el escáner del PIXMA TS5151. Instala el MP Driver de la serie TS5100, y en Wi-Fi usa el Selector de red Canon. Luego pulsa Reintentar o Elegir escáner de Windows."));
+                    "No hay escáner listo. En el Selector EX2 pulsa Aceptar, luego Reintentar. Si la impresora ya imprime por Wi-Fi, espera a que aparezca como dispositivo de red (eSCL)."));
                 return;
             }
         }
@@ -482,11 +484,19 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void OpenNetworkSelector()
     {
+        if (CanonSetupHelper.IsNetworkSelectorRunning())
+        {
+            _dialogs.Info(
+                "Selector de red Canon",
+                "El Selector EX2 ya está abierto. Marca el TS5100 series (el de tu MAC), pulsa Aceptar y cierra esa ventana.\n\nDespués pulsa Reintentar aquí. No hace falta abrir el Selector otra vez.");
+            return;
+        }
+
         if (CanonSetupHelper.TryOpenNetworkSelector())
         {
             _dialogs.Info(
                 "Selector de red Canon",
-                "En IJ Network Scanner Selector EX marca el Canon TS5100 series y pulsa OK.\n\nDespués vuelve aquí y pulsa Actualizar dispositivos (F5).");
+                "Marca el Canon TS5100 series y pulsa Aceptar (imprescindible).\n\nCuando se cierre el cuadro, pulsa Reintentar. El icono puede seguir en la bandeja: eso es normal.");
             return;
         }
 

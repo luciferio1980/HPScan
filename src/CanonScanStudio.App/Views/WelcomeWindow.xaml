@@ -23,7 +23,7 @@
             <TextBlock x:Name="StatusLabel" Text="Buscando escáneres..." Margin="0,12,0,12" Foreground="#6B6B6B" />
             <ListBox x:Name="DeviceList" Height="160" DisplayMemberPath="DisplayName" />
             <TextBlock Margin="0,12,0,0" Foreground="#6B6B6B" TextWrapping="Wrap"
-                       Text="El PIXMA TS5151 suele aparecer como Canon TS5100 series. Si no sale nada, instala el MP Driver oficial (serie TS5100): no basta con que Windows imprima. En Wi-Fi abre el Selector de red Canon, marca el TS5100 y pulsa OK. Luego Buscar de nuevo o Elegir escáner de Windows." />
+                       Text="Si arriba pone «Ningún escáner» o «No disponible», Windows aún no ha entregado un dispositivo de escaneo. El PIXMA suele aparecer como Canon TS5100 series. En Wi-Fi: Selector EX2 → marca el TS5100 → Aceptar, luego Buscar de nuevo. Si ya imprime, esta versión busca el escáner por la IP de la impresora." />
         </StackPanel>
     </DockPanel>
 </Window>

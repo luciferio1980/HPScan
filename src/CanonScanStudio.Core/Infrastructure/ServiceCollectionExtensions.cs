@@ -1,4 +1,5 @@
 using CanonScanStudio.Scanning;
+using CanonScanStudio.Scanning.Escl;
 using CanonScanStudio.Scanning.Twain;
 using CanonScanStudio.Scanning.Wia;
 using CanonScanStudio.Services;
@@ -22,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IUndoService, UndoService>();
         services.AddSingleton<IScannerBackend, WiaScannerBackend>();
         services.AddSingleton<IScannerBackend, TwainScannerBackend>();
+        services.AddSingleton<IScannerBackend, EsclScannerBackend>();
         services.AddSingleton<IScannerService, ScannerService>();
         return services;
     }

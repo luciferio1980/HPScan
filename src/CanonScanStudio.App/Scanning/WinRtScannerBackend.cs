@@ -38,20 +38,29 @@ public sealed class WinRtScannerBackend : IScannerBackend
             var selector = ImageScanner.GetDeviceSelector();
             var found = DeviceInformation.FindAllAsync(selector).AsTask().GetAwaiter().GetResult();
             var devices = new List<ScanDevice>(found.Count);
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var info in found)
             {
-                var name = string.IsNullOrWhiteSpace(info.Name) ? "Escáner Windows" : info.Name;
-                devices.Add(new ScanDevice
+                AddWinRtDevice(devices, seen, info);
+            }
+
+            try
+            {
+                var imaging = DeviceInformation.FindAllAsync(DeviceClass.Imaging).AsTask().GetAwaiter().GetResult();
+                foreach (var info in imaging)
                 {
-                    Id = "winrt:" + info.Id,
-                    Name = name,
-                    Interface = ScannerInterfaceKind.WindowsScan,
-                    Connection = DeviceMatcher.InferConnection(name, info.Id),
-                    IsCanonTs5100Family = DeviceMatcher.IsCanonTs5100Family(name),
-                    StatusText = info.IsEnabled ? "Detectado" : "Deshabilitado",
-                    IsAvailable = info.IsEnabled
-                });
-                _log.Info($"Windows Scan: '{name}' id={info.Id} enabled={info.IsEnabled}");
+                    if (!DeviceMatcher.IsCanonTs5100Family(info.Name) &&
+                        !info.Name.Contains("canon", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    AddWinRtDevice(devices, seen, info);
+                }
+            }
+            catch (Exception ex)
+            {
+                _log.Warn("No se han podido enumerar dispositivos Imaging de Windows: " + ex.Message);
             }
 
             _log.Info($"Windows Scan ha encontrado {devices.Count} dispositivo(s).");
@@ -62,6 +71,27 @@ public sealed class WinRtScannerBackend : IScannerBackend
             _log.Warn("No se han podido enumerar escáneres de Windows: " + ex.Message);
             return Array.Empty<ScanDevice>();
         }
+    }
+
+    private void AddWinRtDevice(List<ScanDevice> devices, HashSet<string> seen, DeviceInformation info)
+    {
+        if (!seen.Add(info.Id))
+        {
+            return;
+        }
+
+        var name = string.IsNullOrWhiteSpace(info.Name) ? "Escáner Windows" : info.Name;
+        devices.Add(new ScanDevice
+        {
+            Id = "winrt:" + info.Id,
+            Name = name,
+            Interface = ScannerInterfaceKind.WindowsScan,
+            Connection = DeviceMatcher.InferConnection(name, info.Id),
+            IsCanonTs5100Family = DeviceMatcher.IsCanonTs5100Family(name),
+            StatusText = info.IsEnabled ? "Detectado" : "Deshabilitado",
+            IsAvailable = info.IsEnabled
+        });
+        _log.Info($"Windows Scan: '{name}' id={info.Id} enabled={info.IsEnabled}");
     }
 
     public ScanCapabilities GetCapabilities(string deviceId)

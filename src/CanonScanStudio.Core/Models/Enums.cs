@@ -5,7 +5,8 @@ public enum ScannerInterfaceKind
     Auto = 0,
     Wia = 1,
     Twain = 2,
-    WindowsScan = 3
+    WindowsScan = 3,
+    Escl = 4
 }
 
 public enum ScannerConnectionKind
