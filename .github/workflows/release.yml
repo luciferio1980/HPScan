@@ -91,7 +91,10 @@ jobs:
           $notes = @(
             "Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.",
             "",
-            "## Novedades 1.0.14",
+            "## Novedades 1.0.15",
+            "- Oscuro y Medianoche: el texto de listas, casillas y Más opciones se lee bien.",
+            "",
+            "## 1.0.14",
             "- Temas en Configuración: Claro, Oscuro, Medianoche, Bosque, Atardecer, Océano y Lavanda.",
             "- Inclinación en Más opciones: deslizador a izquierda/derecha (0 deja la imagen como está).",
             "- Se ha quitado el selector Fuente (Platina/Flatbed), que no cambiaba nada.",
@@ -133,18 +136,18 @@ jobs:
           $delay = 15
           for ($i = 1; $i -le 6; $i++) {
             Write-Host "GitHub release attempt $i..."
-            gh release view v1.0.14 *> $null
+            gh release view v1.0.15 *> $null
             $exists = $LASTEXITCODE -eq 0
             if ($exists) {
-              gh release edit v1.0.14 --title "Canon Scan Studio 1.0.14" --notes-file $notesPath --latest
+              gh release edit v1.0.15 --title "Canon Scan Studio 1.0.15" --notes-file $notesPath --latest
               if ($LASTEXITCODE -eq 0) {
-                gh release upload v1.0.14 $zip $setup --clobber
+                gh release upload v1.0.15 $zip $setup --clobber
               }
             } else {
-              gh release create v1.0.14 $zip $setup --title "Canon Scan Studio 1.0.14" --notes-file $notesPath --latest
+              gh release create v1.0.15 $zip $setup --title "Canon Scan Studio 1.0.15" --notes-file $notesPath --latest
             }
             if ($LASTEXITCODE -eq 0) {
-              Write-Host "Published v1.0.14."
+              Write-Host "Published v1.0.15."
               exit 0
             }
             Write-Host "GitHub API failed (attempt $i). Waiting $delay seconds..."

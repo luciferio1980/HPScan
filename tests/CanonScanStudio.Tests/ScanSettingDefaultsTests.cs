@@ -48,4 +48,25 @@ public class ScanSettingDefaultsTests
         AppThemes.Normalize("no-existe").Should().Be("claro");
         new AppSettings().ThemeId.Should().Be("claro");
     }
+
+    [Fact]
+    public void Dark_theme_files_do_not_use_claro_body_text_color()
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "CanonScanStudio.sln")))
+        {
+            dir = dir.Parent;
+        }
+
+        dir.Should().NotBeNull("el test debe ejecutarse dentro del repositorio");
+        foreach (var id in new[] { "oscuro", "medianoche" })
+        {
+            var path = Path.Combine(dir!.FullName, "src", "CanonScanStudio.App", "Themes", $"Theme.{id}.xaml");
+            File.Exists(path).Should().BeTrue(path);
+            var xaml = File.ReadAllText(path);
+            xaml.Should().Contain("x:Key=\"TextPrimary\"");
+            xaml.Should().Contain("x:Key=\"ControlBg\"");
+            xaml.Should().NotContain("Color=\"#2B2B2B\"");
+        }
+    }
 }
