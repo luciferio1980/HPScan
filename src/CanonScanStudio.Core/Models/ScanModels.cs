@@ -13,7 +13,7 @@ public sealed record ScanRequest
 
 public sealed record ScanProgress(int Percent, string Message);
 
-public sealed class ScanResult
+public sealed record ScanResult
 {
     public required byte[] ImageBytes { get; init; }
     public required string FormatHint { get; init; }
@@ -66,7 +66,7 @@ public sealed class OcrWord
     public float Confidence { get; init; }
 }
 
-public sealed class OcrPageResult
+public sealed record OcrPageResult
 {
     public required Guid PageId { get; init; }
     public required string Text { get; init; }
