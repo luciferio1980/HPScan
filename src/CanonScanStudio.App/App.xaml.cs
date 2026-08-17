@@ -86,7 +86,6 @@ public partial class App : Application
     {
         ReportFatalError("Canon Scan Studio ha encontrado un error inesperado.", e.Exception);
         e.Handled = true;
-        Shutdown(1);
     }
 
     private static void OnDomainUnhandledException(object sender, UnhandledExceptionEventArgs e)

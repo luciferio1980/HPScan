@@ -27,6 +27,7 @@ public sealed partial class MainViewModel : ObservableObject
     private CancellationTokenSource? _scanCts;
     private bool _updatingEdit;
     private bool _suppressDeviceChange;
+    private bool _updatingCapabilities;
 
     public MainViewModel(
         IScannerService scanner,
@@ -60,10 +61,8 @@ public sealed partial class MainViewModel : ObservableObject
 
             dispatcher.BeginInvoke(RefreshScannerState);
         };
-        SelectedDpi = ResolutionPresets.UntilDeviceReady.Contains(_settings.Current.DefaultDpi)
-            ? _settings.Current.DefaultDpi
-            : 300;
-        SelectedColor = _settings.Current.DefaultColorMode;
+        SelectedDpi = ScanSettingDefaults.ChooseDpi(ResolutionPresets.UntilDeviceReady, _settings.Current.DefaultDpi);
+        SelectedColor = ScanSettingDefaults.ChooseColor(ColorModes, _settings.Current.DefaultColorMode);
         SelectedPageSize = PageSizeDefinition.Find(_settings.Current.DefaultPageSizeId);
         SelectedFormat = _settings.Current.DefaultFormat;
         SelectedDestination = _settings.Current.Destination;
@@ -85,8 +84,8 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty] private ScanDevice? selectedDevice;
     [ObservableProperty] private PageItemViewModel? selectedPage;
-    [ObservableProperty] private int selectedDpi = 300;
-    [ObservableProperty] private ColorMode selectedColor = ColorMode.Color;
+    [ObservableProperty] private int selectedDpi = ScanSettingDefaults.Dpi;
+    [ObservableProperty] private ColorMode selectedColor = ScanSettingDefaults.Color;
     [ObservableProperty] private PageSizeDefinition selectedPageSize = PageSizeDefinition.A4;
     [ObservableProperty] private OutputFormat selectedFormat = OutputFormat.Pdf;
     [ObservableProperty] private SendToDestination selectedDestination = SendToDestination.LocalFolder;
@@ -105,7 +104,7 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty] private string scanProgressText = "";
     [ObservableProperty] private string statusText = "Buscando escáner...";
     [ObservableProperty] private string deviceStatusText = "No disponible";
-    [ObservableProperty] private double zoom = 1;
+    [ObservableProperty] private double zoom = ScanSettingDefaults.Zoom;
     [ObservableProperty] private bool cropMode;
     [ObservableProperty] private double cropX;
     [ObservableProperty] private double cropY;
@@ -454,16 +453,24 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         SelectedPage = item;
-        var window = new CropPageWindow(item, _images)
+        try
         {
-            Owner = Application.Current.MainWindow
-        };
-        if (window.ShowDialog() != true || window.NormalizedCrop is null)
-        {
-            return;
-        }
+            var window = new CropPageWindow(item, _images)
+            {
+                Owner = Application.Current.MainWindow
+            };
+            if (window.ShowDialog() != true || window.NormalizedCrop is null)
+            {
+                return;
+            }
 
-        CommitBakedCrop(item, window.NormalizedCrop);
+            CommitBakedCrop(item, window.NormalizedCrop);
+        }
+        catch (Exception ex)
+        {
+            _log.Error("No se ha podido abrir el recorte.", ex);
+            _dialogs.Info("Recortar", "No se ha podido abrir la ventana de recorte. " + ex.GetBaseException().Message);
+        }
     }
 
     private void CommitBakedCrop(PageItemViewModel item, CropRegion normalized)
@@ -664,7 +671,7 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         }
 
-        Zoom = 1;
+        Zoom = ScanSettingDefaults.Zoom;
     }
 
     partial void OnSelectedDeviceChanged(ScanDevice? value)
@@ -705,6 +712,26 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     partial void OnZoomChanged(double value) => OnPropertyChanged(nameof(ZoomLabel));
+
+    partial void OnSelectedDpiChanged(int value)
+    {
+        if (_updatingCapabilities || value <= 0)
+        {
+            return;
+        }
+
+        _settings.Current.DefaultDpi = value;
+    }
+
+    partial void OnSelectedColorChanged(ColorMode value)
+    {
+        if (_updatingCapabilities)
+        {
+            return;
+        }
+
+        _settings.Current.DefaultColorMode = value;
+    }
 
     partial void OnIsScanningChanged(bool value)
     {
@@ -843,14 +870,14 @@ public sealed partial class MainViewModel : ObservableObject
             _log.Warn("No se ha podido generar la vista previa: " + ex.Message);
             try
             {
-                var raw = File.ReadAllBytes(item.Page.OriginalPath);
-                item.Preview = ImageSourceFactory.FromBytes(raw);
+                var fallback = _images.ApplyEdits(item.Page.OriginalPath, PageEditState.Identity());
+                item.Preview = ImageSourceFactory.FromBytes(fallback);
                 item.Thumbnail = item.Preview;
                 item.NotifyLabels();
             }
             catch (Exception fallback)
             {
-                _log.Warn("Tampoco se ha podido mostrar el JPEG original: " + fallback.Message);
+                _log.Warn("Tampoco se ha podido mostrar la imagen: " + fallback.Message);
             }
         }
     }
@@ -890,37 +917,91 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void ApplyCapabilities()
     {
-        var caps = _scanner.Capabilities;
-        var dpiList = ResolutionPresets.MergeAdvertised(caps?.ResolutionsDpi);
-        Resolutions.Clear();
-        foreach (var dpi in dpiList)
+        _updatingCapabilities = true;
+        try
         {
-            Resolutions.Add(dpi);
-        }
+            var caps = _scanner.Capabilities;
+            var dpiList = ResolutionPresets.MergeAdvertised(caps?.ResolutionsDpi);
+            var dpiReplaced = ReplaceCollection(Resolutions, dpiList);
+            var chosenDpi = ScanSettingDefaults.ChooseDpi(dpiList, SelectedDpi);
+            ForceSelectDpi(chosenDpi, dpiReplaced);
 
-        if (!Resolutions.Contains(SelectedDpi))
-        {
-            SelectedDpi = dpiList.OrderBy(d => Math.Abs(d - (SelectedDpi == 0 ? 300 : SelectedDpi))).First();
+            IReadOnlyList<ColorMode> colorList = caps?.ColorModes is { Count: > 0 }
+                ? caps.ColorModes
+                : [ColorMode.Color, ColorMode.Grayscale, ColorMode.BlackAndWhite];
+            var colorReplaced = ReplaceCollection(ColorModes, colorList);
+            var chosenColor = ScanSettingDefaults.ChooseColor(colorList, SelectedColor);
+            ForceSelectColor(chosenColor, colorReplaced);
         }
-
-        if (caps is null)
+        finally
         {
-            return;
-        }
-
-        if (caps.ColorModes.Count > 0)
-        {
-            ColorModes.Clear();
-            foreach (var mode in caps.ColorModes)
+            _updatingCapabilities = false;
+            if (SelectedDpi > 0)
             {
-                ColorModes.Add(mode);
+                _settings.Current.DefaultDpi = SelectedDpi;
             }
 
-            if (!ColorModes.Contains(SelectedColor))
+            _settings.Current.DefaultColorMode = SelectedColor;
+        }
+    }
+
+    private void ForceSelectDpi(int dpi, bool collectionReplaced)
+    {
+        if (collectionReplaced && SelectedDpi == dpi)
+        {
+            var other = Resolutions.FirstOrDefault(d => d != dpi);
+            if (other != 0)
             {
-                SelectedColor = ColorModes[0];
+                SelectedDpi = other;
             }
         }
+
+        SelectedDpi = dpi;
+        OnPropertyChanged(nameof(SelectedDpi));
+    }
+
+    private void ForceSelectColor(ColorMode color, bool collectionReplaced)
+    {
+        if (collectionReplaced && SelectedColor == color)
+        {
+            var other = ColorModes.FirstOrDefault(m => m != color);
+            if (other != color)
+            {
+                SelectedColor = other;
+            }
+        }
+
+        SelectedColor = color;
+        OnPropertyChanged(nameof(SelectedColor));
+    }
+
+    private static bool ReplaceCollection<T>(ObservableCollection<T> target, IReadOnlyList<T> source)
+    {
+        if (target.Count == source.Count)
+        {
+            var same = true;
+            for (var i = 0; i < source.Count; i++)
+            {
+                if (!EqualityComparer<T>.Default.Equals(target[i], source[i]))
+                {
+                    same = false;
+                    break;
+                }
+            }
+
+            if (same)
+            {
+                return false;
+            }
+        }
+
+        target.Clear();
+        foreach (var item in source)
+        {
+            target.Add(item);
+        }
+
+        return true;
     }
 
     private void SaveInternal(bool quick, bool forceDialog = false)

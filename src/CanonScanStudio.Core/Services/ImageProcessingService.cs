@@ -1,6 +1,5 @@
 using CanonScanStudio.Models;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Processing;
 
@@ -100,20 +99,9 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public byte[] ApplyEdits(string originalPath, PageEditState edit, int maxEdge = 0)
     {
-        using var image = LoadForEdit(originalPath, maxEdge);
+        using var image = LoadForEdit(originalPath);
         Mutate(image, edit);
-        if (maxEdge > 0)
-        {
-            var longest = Math.Max(image.Width, image.Height);
-            if (longest > maxEdge)
-            {
-                image.Mutate(x => x.Resize(new ResizeOptions
-                {
-                    Mode = ResizeMode.Max,
-                    Size = new Size(maxEdge, maxEdge)
-                }));
-            }
-        }
+        ResizeToMaxEdge(image, maxEdge);
 
         using var ms = new MemoryStream();
         image.SaveAsPng(ms);
@@ -122,7 +110,7 @@ public sealed class ImageProcessingService : IImageProcessingService
 
     public byte[] CreateThumbnail(string originalPath, PageEditState edit, int width = 140)
     {
-        using var image = LoadForEdit(originalPath, Math.Max(width * 2, 280));
+        using var image = LoadForEdit(originalPath);
         Mutate(image, edit);
         image.Mutate(x => x.Resize(new ResizeOptions
         {
@@ -234,15 +222,46 @@ public sealed class ImageProcessingService : IImageProcessingService
         return Math.Abs(bestAngle) < 0.25 ? 0 : -bestAngle;
     }
 
-    private static Image<Rgba32> LoadForEdit(string originalPath, int maxEdge)
+    private static Image<Rgba32> LoadForEdit(string originalPath)
     {
-        if (maxEdge > 0)
+        try
         {
-            var options = new DecoderOptions { TargetSize = new Size(maxEdge, maxEdge) };
-            return Image.Load<Rgba32>(options, originalPath);
+            return Image.Load<Rgba32>(originalPath);
+        }
+        catch (Exception first)
+        {
+            try
+            {
+                using var loaded = Image.Load(originalPath);
+                return loaded.CloneAs<Rgba32>();
+            }
+            catch (Exception second)
+            {
+                throw new InvalidOperationException(
+                    "No se ha podido leer la imagen escaneada.",
+                    second.InnerException ?? first);
+            }
+        }
+    }
+
+    private static void ResizeToMaxEdge(Image<Rgba32> image, int maxEdge)
+    {
+        if (maxEdge <= 0)
+        {
+            return;
         }
 
-        return Image.Load<Rgba32>(originalPath);
+        var longest = Math.Max(image.Width, image.Height);
+        if (longest <= maxEdge)
+        {
+            return;
+        }
+
+        image.Mutate(x => x.Resize(new ResizeOptions
+        {
+            Mode = ResizeMode.Max,
+            Size = new Size(maxEdge, maxEdge)
+        }));
     }
 
     private static bool IsJpeg(byte[] bytes) => bytes.Length >= 2 && bytes[0] == 0xFF && bytes[1] == 0xD8;

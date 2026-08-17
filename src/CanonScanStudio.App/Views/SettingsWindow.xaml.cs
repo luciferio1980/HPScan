@@ -24,9 +24,18 @@ public partial class SettingsWindow : Window
         IfWia.IsChecked = settings.Current.Interface == ScannerInterfaceKind.Wia;
         IfTwain.IsChecked = settings.Current.Interface == ScannerInterfaceKind.Twain;
         DpiBox.ItemsSource = new[] { 75, 150, 300, 600, 1200 };
-        DpiBox.SelectedItem = settings.Current.DefaultDpi;
+        DpiBox.SelectedItem = settings.Current.DefaultDpi > 0 ? settings.Current.DefaultDpi : ScanSettingDefaults.Dpi;
+        if (DpiBox.SelectedItem is null)
+        {
+            DpiBox.SelectedItem = ScanSettingDefaults.Dpi;
+        }
+
         ColorBox.ItemsSource = new[] { ColorMode.Color, ColorMode.Grayscale, ColorMode.BlackAndWhite };
         ColorBox.SelectedItem = settings.Current.DefaultColorMode;
+        if (ColorBox.SelectedItem is null)
+        {
+            ColorBox.SelectedItem = ScanSettingDefaults.Color;
+        }
         SizeBox.ItemsSource = PageSizeDefinition.Presets;
         SizeBox.SelectedItem = PageSizeDefinition.Find(settings.Current.DefaultPageSizeId);
         FolderBox.Text = settings.Current.DefaultSaveFolder;

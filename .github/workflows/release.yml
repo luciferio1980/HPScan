@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.9
-          name: Canon Scan Studio 1.0.9
+          tag_name: v1.0.10
+          name: Canon Scan Studio 1.0.10
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -96,9 +96,11 @@ jobs:
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
 
-            ## Novedades 1.0.9
-            - Las páginas se muestran **ajustadas al recuadro** tipo folio.
-            - **Doble clic** en una página abre una ventana de recorte: recuadro arrastrable, zona exterior semitransparente, **Aceptar** recorta y **Cancelar** no cambia nada.
+            ## Novedades 1.0.10
+            - La vista previa convierte el JPEG del escáner a PNG para que se vea en el recuadro.
+            - Doble clic para recortar ya no cierra la aplicación si la imagen falla al cargarse.
+            - **Resolución** muestra 300 DPI (o la configurada) y **Color** arranca en Color.
+            - El zoom por defecto es **100 %**. *Ajustar* sigue encajando las páginas en la ventana.
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo

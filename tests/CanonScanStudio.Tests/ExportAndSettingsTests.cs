@@ -67,6 +67,19 @@ public class ExportAndSettingsTests : IDisposable
             loaded.Current.Interface.Should().Be(ScannerInterfaceKind.Wia);
     }
 
+    [Fact]
+    public void Settings_zero_dpi_becomes_300_color()
+    {
+        Environment.SetEnvironmentVariable("CANON_SCAN_STUDIO_DATA", _root);
+        AppPaths.EnsureCreated();
+        File.WriteAllText(
+            AppPaths.Settings,
+            """{"DefaultDpi":0,"DefaultColorMode":99,"DefaultSaveFolder":""}""");
+        var loaded = new SettingsService(new InMemoryLog());
+        loaded.Current.DefaultDpi.Should().Be(300);
+        loaded.Current.DefaultColorMode.Should().Be(ColorMode.Color);
+    }
+
     private static ExportedPage Page(Color color)
     {
         using var image = new Image<Rgba32>(40, 50, color);

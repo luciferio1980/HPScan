@@ -2,6 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:CanonScanStudio.App.Converters"
+        xmlns:models="clr-namespace:CanonScanStudio.Models;assembly=CanonScanStudio.Core"
         Title="Canon Scan Studio"
         Height="780" Width="1280"
         MinHeight="620" MinWidth="1024"
@@ -89,7 +90,6 @@
                               HorizontalScrollBarVisibility="Auto"
                               VerticalScrollBarVisibility="Disabled"
                               PreviewMouseWheel="OnPageStripWheel"
-                              SizeChanged="OnPageStripSizeChanged"
                               Padding="8,4,8,16">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <StackPanel.LayoutTransform>
@@ -192,7 +192,7 @@
                         </Grid>
 
                         <TextBlock Text="Resolución" Style="{StaticResource FieldLabel}" />
-                        <ComboBox ItemsSource="{Binding Resolutions}" SelectedItem="{Binding SelectedDpi}">
+                        <ComboBox ItemsSource="{Binding Resolutions}" SelectedItem="{Binding SelectedDpi, TargetNullValue=300}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource EnumDisplay}}" />
@@ -201,7 +201,7 @@
                         </ComboBox>
 
                         <TextBlock Text="Color" Style="{StaticResource FieldLabel}" />
-                        <ComboBox ItemsSource="{Binding ColorModes}" SelectedItem="{Binding SelectedColor}">
+                        <ComboBox ItemsSource="{Binding ColorModes}" SelectedItem="{Binding SelectedColor, TargetNullValue={x:Static models:ColorMode.Color}}">
                             <ComboBox.ItemTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="{Binding Converter={StaticResource EnumDisplay}}" />

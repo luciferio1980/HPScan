@@ -33,19 +33,31 @@ public partial class CropPageWindow : Window
     public CropPageWindow(PageItemViewModel page, IImageProcessingService images)
     {
         InitializeComponent();
-        var edit = page.Page.Edit.Clone();
-        edit.Crop = null;
-        var preview = images.ApplyEdits(page.Page.OriginalPath, edit, 1800);
+        Title = "Recortar · " + page.Title;
+        var preview = LoadPreview(page, images);
         var info = images.ReadInfo(preview);
         _imageWidth = info.Width;
         _imageHeight = info.Height;
         Photo.Source = ImageSourceFactory.FromBytes(preview);
-        Title = "Recortar · " + page.Title;
 
         _cropX = _imageWidth * 0.08;
         _cropY = _imageHeight * 0.08;
         _cropW = _imageWidth * 0.84;
         _cropH = _imageHeight * 0.84;
+    }
+
+    private static byte[] LoadPreview(PageItemViewModel page, IImageProcessingService images)
+    {
+        var edit = page.Page.Edit.Clone();
+        edit.Crop = null;
+        try
+        {
+            return images.ApplyEdits(page.Page.OriginalPath, edit, 1800);
+        }
+        catch
+        {
+            return images.ApplyEdits(page.Page.OriginalPath, PageEditState.Identity());
+        }
     }
 
     public CropRegion? NormalizedCrop { get; private set; }

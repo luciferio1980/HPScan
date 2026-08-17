@@ -97,6 +97,49 @@ public class SessionAndEditTests : IDisposable
     }
 
     [Fact]
+    public void Preview_resize_happens_after_crop_not_before_decode()
+    {
+        var path = Path.Combine(_root, "orig.png");
+        using (var image = new Image<Rgba32>(20, 10, new Rgba32(120, 80, 80)))
+        {
+            image.SaveAsPng(path);
+        }
+
+        var preview = new ImageProcessingService().ApplyEdits(
+            path,
+            new PageEditState { Crop = new CropRegion(2, 2, 8, 6) },
+            4);
+        using var result = Image.Load<Rgba32>(preview);
+        result.Width.Should().Be(4);
+        result.Height.Should().Be(3);
+        preview[0].Should().Be(0x89);
+        preview[1].Should().Be(0x50);
+    }
+
+    [Fact]
+    public void Jpeg_scan_preview_is_png_without_decoder_target_size()
+    {
+        var path = Path.Combine(_root, "scan.jpg");
+        using (var image = new Image<Rgba32>(40, 30, new Rgba32(10, 20, 200)))
+        {
+            image.SaveAsJpeg(path);
+        }
+
+        var service = new ImageProcessingService();
+        var preview = service.ApplyEdits(path, PageEditState.Identity(), 20);
+        preview[0].Should().Be(0x89);
+        preview[1].Should().Be(0x50);
+        using var result = Image.Load<Rgba32>(preview);
+        result.Width.Should().Be(20);
+        result.Height.Should().Be(15);
+
+        var thumb = service.CreateThumbnail(path, PageEditState.Identity(), 10);
+        using var thumbImage = Image.Load<Rgba32>(thumb);
+        thumbImage.Width.Should().BeLessThanOrEqualTo(10);
+        thumb[0].Should().Be(0x89);
+    }
+
+    [Fact]
     public void Rotate_left_and_right_step_by_90_degrees()
     {
         var edit = PageEditState.Identity();

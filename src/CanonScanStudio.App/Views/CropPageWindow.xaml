@@ -30,14 +30,14 @@
                            MouseLeftButtonDown="OnCropMouseDown"
                            MouseMove="OnCropMouseMove"
                            MouseLeftButtonUp="OnCropMouseUp" />
-                <Rectangle x:Name="HandleNw" Style="{StaticResource CropHandle}" Cursor="SizeNWSE" MouseLeftButtonDown="OnHandleDown" Tag="nw" />
-                <Rectangle x:Name="HandleNe" Style="{StaticResource CropHandle}" Cursor="SizeNESW" MouseLeftButtonDown="OnHandleDown" Tag="ne" />
-                <Rectangle x:Name="HandleSw" Style="{StaticResource CropHandle}" Cursor="SizeNESW" MouseLeftButtonDown="OnHandleDown" Tag="sw" />
-                <Rectangle x:Name="HandleSe" Style="{StaticResource CropHandle}" Cursor="SizeNWSE" MouseLeftButtonDown="OnHandleDown" Tag="se" />
-                <Rectangle x:Name="HandleN" Style="{StaticResource CropHandle}" Cursor="SizeNS" MouseLeftButtonDown="OnHandleDown" Tag="n" />
-                <Rectangle x:Name="HandleS" Style="{StaticResource CropHandle}" Cursor="SizeNS" MouseLeftButtonDown="OnHandleDown" Tag="s" />
-                <Rectangle x:Name="HandleW" Style="{StaticResource CropHandle}" Cursor="SizeWE" MouseLeftButtonDown="OnHandleDown" Tag="w" />
-                <Rectangle x:Name="HandleE" Style="{StaticResource CropHandle}" Cursor="SizeWE" MouseLeftButtonDown="OnHandleDown" Tag="e" />
+                <Rectangle x:Name="HandleNw" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeNWSE" MouseLeftButtonDown="OnHandleDown" Tag="nw" />
+                <Rectangle x:Name="HandleNe" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeNESW" MouseLeftButtonDown="OnHandleDown" Tag="ne" />
+                <Rectangle x:Name="HandleSw" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeNESW" MouseLeftButtonDown="OnHandleDown" Tag="sw" />
+                <Rectangle x:Name="HandleSe" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeNWSE" MouseLeftButtonDown="OnHandleDown" Tag="se" />
+                <Rectangle x:Name="HandleN" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeNS" MouseLeftButtonDown="OnHandleDown" Tag="n" />
+                <Rectangle x:Name="HandleS" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeNS" MouseLeftButtonDown="OnHandleDown" Tag="s" />
+                <Rectangle x:Name="HandleW" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeWE" MouseLeftButtonDown="OnHandleDown" Tag="w" />
+                <Rectangle x:Name="HandleE" Width="10" Height="10" Fill="White" Stroke="#1E88E5" StrokeThickness="1" SnapsToDevicePixels="True" Cursor="SizeWE" MouseLeftButtonDown="OnHandleDown" Tag="e" />
             </Canvas>
         </Grid>
     </DockPanel>

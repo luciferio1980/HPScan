@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using CanonScanStudio.App.ViewModels;
+using CanonScanStudio.Models;
 
 namespace CanonScanStudio.App.Views;
 
@@ -9,7 +10,6 @@ public partial class MainWindow : Window
 {
     private Point _dragStart;
     private int _dragIndex = -1;
-    private bool _suspendFit;
 
     public MainWindow(MainViewModel viewModel)
     {
@@ -19,7 +19,6 @@ public partial class MainWindow : Window
         {
             Dispatcher.BeginInvoke(() =>
             {
-                FitPagesInView();
                 PageStripScroll.ScrollToRightEnd();
             }, System.Windows.Threading.DispatcherPriority.Loaded);
         };
@@ -33,19 +32,14 @@ public partial class MainWindow : Window
         }
 
         const double cardHeight = 348;
-        var zoom = Math.Clamp((PageStripScroll.ActualHeight - 20) / cardHeight, 0.35, 2.8);
-        _suspendFit = true;
-        vm.Zoom = zoom;
-        _suspendFit = false;
+        vm.Zoom = Math.Clamp((PageStripScroll.ActualHeight - 20) / cardHeight, 0.35, 2.8);
     }
 
-    private void OnLoaded(object sender, RoutedEventArgs e) => FitPagesInView();
-
-    private void OnPageStripSizeChanged(object sender, SizeChangedEventArgs e)
+    private void OnLoaded(object sender, RoutedEventArgs e)
     {
-        if (!_suspendFit && e.HeightChanged)
+        if (DataContext is MainViewModel vm)
         {
-            FitPagesInView();
+            vm.Zoom = ScanSettingDefaults.Zoom;
         }
     }
 

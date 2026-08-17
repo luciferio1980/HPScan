@@ -11,7 +11,7 @@ public static class ImageSourceFactory
         var image = new BitmapImage();
         image.BeginInit();
         image.CacheOption = BitmapCacheOption.OnLoad;
-        image.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
+        image.CreateOptions = BitmapCreateOptions.IgnoreImageCache | BitmapCreateOptions.IgnoreColorProfile;
         image.StreamSource = stream;
         image.EndInit();
         image.Freeze();

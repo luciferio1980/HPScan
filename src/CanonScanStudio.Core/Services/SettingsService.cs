@@ -41,6 +41,16 @@ public sealed class SettingsService : ISettingsService
             {
                 Current.DefaultSaveFolder = AppPaths.DefaultDocuments;
             }
+
+            if (Current.DefaultDpi <= 0)
+            {
+                Current.DefaultDpi = ScanSettingDefaults.Dpi;
+            }
+
+            if (!Enum.IsDefined(Current.DefaultColorMode))
+            {
+                Current.DefaultColorMode = ScanSettingDefaults.Color;
+            }
         }
         catch (Exception ex)
         {
