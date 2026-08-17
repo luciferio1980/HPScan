@@ -46,8 +46,10 @@ public sealed class WinRtScannerBackend : IScannerBackend
 
             try
             {
-                var imaging = DeviceInformation.FindAllAsync(DeviceClass.Imaging).AsTask().GetAwaiter().GetResult();
-                foreach (var info in imaging)
+                var stillImage = DeviceInformation.FindAllAsync(
+                        @"System.Devices.InterfaceClassGuid:=""{6BDD1FC6-810F-11D0-BEC7-08002BE2092F}""")
+                    .AsTask().GetAwaiter().GetResult();
+                foreach (var info in stillImage)
                 {
                     if (!DeviceMatcher.IsCanonTs5100Family(info.Name) &&
                         !info.Name.Contains("canon", StringComparison.OrdinalIgnoreCase))
@@ -60,7 +62,7 @@ public sealed class WinRtScannerBackend : IScannerBackend
             }
             catch (Exception ex)
             {
-                _log.Warn("No se han podido enumerar dispositivos Imaging de Windows: " + ex.Message);
+                _log.Warn("No se han podido enumerar dispositivos Still Image de Windows: " + ex.Message);
             }
 
             _log.Info($"Windows Scan ha encontrado {devices.Count} dispositivo(s).");
