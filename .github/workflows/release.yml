@@ -1,0 +1,112 @@
+name: Release Windows
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-windows
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Test
+        run: dotnet test tests/CanonScanStudio.Tests/CanonScanStudio.Tests.csproj -c Release --nologo
+
+      - name: Download OCR language data
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path tessdata | Out-Null
+          foreach ($lang in @("spa", "eng")) {
+            $url = "https://github.com/tesseract-ocr/tessdata_fast/raw/main/$lang.traineddata"
+            $out = Join-Path "tessdata" "$lang.traineddata"
+            Write-Host "Downloading $lang..."
+            Invoke-WebRequest -Uri $url -OutFile $out -UseBasicParsing
+          }
+
+      - name: Publish self-contained Windows x64
+        run: >
+          dotnet publish src/CanonScanStudio.App/CanonScanStudio.App.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishReadyToRun=true
+          -p:DebugType=embedded
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -o artifacts/win-x64
+
+      - name: Bundle portable package
+        shell: pwsh
+        run: |
+          $publish = "artifacts/win-x64"
+          New-Item -ItemType Directory -Force -Path "$publish/tessdata" | Out-Null
+          Copy-Item tessdata/*.traineddata "$publish/tessdata/" -Force
+          Copy-Item dist/LEEME.txt "$publish/LEEME.txt" -Force
+          $portableRoot = "artifacts/CanonScanStudio"
+          if (Test-Path $portableRoot) { Remove-Item $portableRoot -Recurse -Force }
+          Copy-Item $publish $portableRoot -Recurse
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $zip = "artifacts/CanonScanStudio-Portable-win-x64.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path $portableRoot -DestinationPath $zip -CompressionLevel Optimal
+          Get-Item $zip | Format-List Name, Length, FullName
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "ISCC.exe not found" }
+          & $iscc installer\CanonScanStudio.iss
+          Copy-Item installer\Output\CanonScanStudio-Setup.exe artifacts\CanonScanStudio-Setup.exe -Force
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: CanonScanStudio-Windows
+          path: |
+            artifacts/CanonScanStudio-Portable-win-x64.zip
+            artifacts/CanonScanStudio-Setup.exe
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0
+          name: Canon Scan Studio 1.0.0
+          make_latest: true
+          fail_on_unmatched_files: true
+          files: |
+            artifacts/CanonScanStudio-Portable-win-x64.zip
+            artifacts/CanonScanStudio-Setup.exe
+          body: |
+            Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
+
+            ## Qué descargar
+            - **CanonScanStudio-Setup.exe** — instalador con acceso directo
+            - **CanonScanStudio-Portable-win-x64.zip** — carpeta portable: descomprime y abre `CanonScanStudio.exe`
+
+            ## Uso
+            1. Enciende el Canon PIXMA TS5151.
+            2. Instala el MP Driver oficial de la serie TS5100 si Windows no ve el escáner.
+            3. Abre Canon Scan Studio y pulsa **Escanear**.
+
+            Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas* (el ejecutable no está firmado con certificado de código).
+
+            Esta versión no incluye controladores de Canon.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

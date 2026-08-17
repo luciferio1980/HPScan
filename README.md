@@ -2,6 +2,21 @@
 
 Aplicación de escritorio para Windows 10/11 que escanea, previsualiza, edita, organiza y guarda documentos usando un **Canon PIXMA TS5151** (serie TS5100).
 
+## Descargar y usar
+
+Paquete listo para Windows 10/11 **64 bits**. No hace falta instalar .NET:
+
+**https://github.com/luciferio1980/HPScan/releases/latest**
+
+Descarga una de estas dos opciones:
+
+1. **CanonScanStudio-Setup.exe** — instalador con acceso directo
+2. **CanonScanStudio-Portable-win-x64.zip** — descomprime la carpeta y abre `CanonScanStudio.exe`
+
+La primera vez Windows puede mostrar SmartScreen: *Más información* → *Ejecutar de todas formas*.
+
+Sigue haciendo falta el **MP Driver oficial de Canon** (serie TS5100) para que el escáner se vea en Windows. Esta aplicación no incluye controladores de Canon.
+
 No copia software de HP ni usa APIs privadas de Canon. El escaneo real se hace con las interfaces estándar de Windows:
 
 1. **WIA** (Windows Image Acquisition) — backend principal

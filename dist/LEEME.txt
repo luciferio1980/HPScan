@@ -1,0 +1,33 @@
+Canon Scan Studio 1.0.0
+=======================
+
+Aplicación de escaneo para Windows 10/11 (64 bits), pensada para el Canon PIXMA TS5151.
+
+CÓMO USARLA
+-----------
+1. Enciende la impresora/escáner.
+2. Conéctala por USB o a la misma red Wi-Fi.
+3. Si Windows no detecta el escáner, instala el MP Driver oficial de Canon
+   para la serie TS5100 (esta aplicación no incluye controladores de Canon).
+4. Abre CanonScanStudio.exe
+5. Elige 300 DPI y Color, pulsa Escanear y guarda en PDF.
+
+El dispositivo puede aparecer como "Canon TS5100 series", no exactamente "TS5151".
+
+REQUISITOS
+----------
+- Windows 10 o Windows 11, 64 bits
+- No necesitas instalar .NET (va incluido en este paquete)
+- Controlador oficial de Canon (MP Driver / WIA)
+
+AVISO DE WINDOWS (SmartScreen)
+------------------------------
+Al abrir el programa por primera vez, Windows puede mostrar
+"Windows protegió tu PC". Pulsa "Más información" y después
+"Ejecutar de todas formas". El archivo no está firmado con un
+certificado de código de pago.
+
+OCR
+---
+Este paquete incluye datos de español e inglés para reconocimiento
+de texto opcional. El escaneo funciona aunque no uses OCR.

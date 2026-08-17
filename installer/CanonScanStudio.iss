@@ -18,11 +18,11 @@ OutputBaseFilename=CanonScanStudio-Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
-ArchitecturesInstallIn64BitMode=x64
+ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\{#MyAppExeName}
-LicenseFile=
+InfoAfterFile=..\dist\POSTINSTALL.txt
 SetupLogging=yes
 
 [Languages]
@@ -43,24 +43,7 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "Iniciar Canon Scan Studio"; Flags: nowait postinstall skipifsilent
 
 [Code]
-function DotNetDesktopInstalled: Boolean;
-begin
-  Result := RegKeyExists(HKLM64, 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App\8.0.0') or
-            RegKeyExists(HKLM, 'SOFTWARE\dotnet\Setup\InstalledVersions\x64\sharedfx\Microsoft.WindowsDesktop.App');
-end;
-
 function InitializeSetup: Boolean;
 begin
   Result := True;
-  if not DotNetDesktopInstalled then
-  begin
-    MsgBox('Canon Scan Studio necesita el runtime de .NET 8 Desktop (Windows Desktop Runtime x64).' + #13#10 +
-           'Instálalo desde https://dotnet.microsoft.com/download/dotnet/8.0 e inicia de nuevo el instalador.' + #13#10#13#10 +
-           'Este programa NO instala el controlador del Canon PIXMA TS5151. Descárgalo desde el sitio oficial de Canon (serie TS5100).',
-           mbInformation, MB_OK);
-  end
-  else
-  begin
-    MsgBox('Recuerda: este instalador no incluye controladores de Canon. Si Windows no detecta el TS5151, instala el MP Driver oficial de la serie TS5100.', mbInformation, MB_OK);
-  end;
 end;

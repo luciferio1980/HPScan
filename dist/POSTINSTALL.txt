@@ -1,0 +1,9 @@
+Canon Scan Studio se ha instalado.
+
+Antes de escanear:
+1. Enciende el Canon PIXMA TS5151.
+2. Conéctalo por USB o Wi-Fi.
+3. Si no aparece en el programa, instala el MP Driver oficial de Canon
+   para la serie TS5100. Este instalador NO incluye controladores de Canon.
+
+El escáner puede mostrarse como "Canon TS5100 series".
