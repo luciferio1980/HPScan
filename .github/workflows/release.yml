@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.2
-          name: Canon Scan Studio 1.0.2
+          tag_name: v1.0.3
+          name: Canon Scan Studio 1.0.3
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -96,10 +96,9 @@ jobs:
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
 
-            ## Novedades 1.0.2
-            - Las páginas se muestran de izquierda a derecha en la pantalla principal.
-            - Botón **Añadir página** para seguir escaneando después de la primera.
-            - Corregido el giro a izquierda y derecha (botones más visibles).
+            ## Novedades 1.0.3
+            - Mejor detección del PIXMA TS5151 (WIA más permisivo + escáneres de Windows en Wi-Fi/eSCL).
+            - Mensajes más claros si Windows ve la impresora pero no el escáner.
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo
@@ -107,7 +106,7 @@ jobs:
 
             ## Uso
             1. Enciende el Canon PIXMA TS5151.
-            2. Instala el MP Driver oficial de la serie TS5100 si Windows no ve el escáner.
+            2. Instala el MP Driver oficial de la serie TS5100 si Windows no ve el **escáner** (imprimir no basta).
             3. Abre Canon Scan Studio y pulsa **Escanear**.
             4. Pulsa **Añadir página** o la tarjeta **+** para escanear la siguiente hoja.
 

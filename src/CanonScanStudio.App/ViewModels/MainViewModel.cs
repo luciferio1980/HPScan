@@ -133,7 +133,15 @@ public sealed partial class MainViewModel : ObservableObject
         RefreshScannerState();
         if (SelectedDevice is null)
         {
-            ErrorBanner = "Canon PIXMA TS5151 no detectado. Comprueba que el escáner esté encendido y conectado mediante USB o Wi-Fi y que el controlador de Canon esté instalado.";
+            ErrorBanner = """
+                No se ha detectado el escáner del PIXMA TS5151.
+
+                1. Enciende la impresora.
+                2. USB bien conectado, o el PC en la misma red Wi-Fi.
+                3. Instala el MP Driver oficial de la serie TS5100 (no basta con añadir solo la impresora).
+                4. En Windows: Configuración → Bluetooth e dispositivos → Impresoras y escáneres. Debe aparecer un escáner (a menudo "Canon TS5100 series").
+                5. Cierra IJ Scan Utility y pulsa Actualizar dispositivos (F5).
+                """;
         }
         else
         {
@@ -155,7 +163,15 @@ public sealed partial class MainViewModel : ObservableObject
             if (_scanner.SelectedDevice is null)
             {
                 ShowScannerError(new ScannerException(
-                    "Canon PIXMA TS5151 no detectado. Comprueba que el escáner esté encendido y conectado mediante USB o Wi-Fi y que el controlador de Canon esté instalado."));
+                    """
+                    No se ha detectado el escáner del PIXMA TS5151.
+
+                    1. Enciende la impresora.
+                    2. USB bien conectado, o el PC en la misma red Wi-Fi.
+                    3. Instala el MP Driver oficial de la serie TS5100 (no basta con añadir solo la impresora).
+                    4. En Windows: Configuración → Impresoras y escáneres. Debe aparecer un escáner, no solo la impresora.
+                    5. Cierra IJ Scan Utility y pulsa Actualizar dispositivos (F5).
+                    """));
                 return;
             }
         }

@@ -9,16 +9,17 @@
 5. Si aparece un cuadro de error, anota el mensaje. El detalle se guarda en `%LocalAppData%\CanonScanStudio\logs` (archivos `crash-*.log`).
 6. Desactiva temporalmente el antivirus si bloquea el `.exe` recién descargado.
 
-## El programa no detecta el escáner
+## El programa no detecta el escáner / la impresora
 
-Mensaje: *Canon PIXMA TS5151 no detectado...*
+Windows puede imprimir y aun así **no publicar el escáner**. Canon Scan Studio necesita el dispositivo de **escaneo** (WIA, TWAIN o Windows Scan), no solo la cola de impresión.
 
 1. La impresora debe estar **encendida**.
-2. USB bien conectado, o el equipo en la **misma red Wi-Fi**.
-3. Instala el **MP Driver** oficial de la serie TS5100. Esta app no lo incluye.
-4. En Windows, el nombre puede ser `Canon TS5100 series` o `TS5100 series_<MAC>`, no exactamente TS5151.
+2. USB bien conectado, o el PC en la **misma red Wi-Fi**.
+3. Instala el **MP Driver** oficial de la serie TS5100 (incluye el escáner). Esta app no lo incluye.
+4. En Windows: *Configuración → Bluetooth e dispositivos → Impresoras y escáneres*. Debe verse un **escáner**, a menudo `Canon TS5100 series` o `TS5100 series_<MAC>`, no exactamente TS5151.
 5. Pulsa **F5** / *Actualizar dispositivos*.
 6. Cierra IJ Scan Utility, Fax y Escáner u otra app que tenga abierto el dispositivo.
+7. Configuración → Diagnóstico: ahí se listan los dispositivos que Windows sí ve.
 
 ## No se puede acceder al escáner
 

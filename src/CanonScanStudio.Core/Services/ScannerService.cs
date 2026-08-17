@@ -196,7 +196,13 @@ public sealed class ScannerService : IScannerService
         };
         if (devices.Count == 0)
         {
-            notes.Add("No hay dispositivos WIA/TWAIN. Instala el MP Driver de la serie TS5100 desde el sitio de Canon.");
+            notes.Add("Windows no ha publicado ningún escáner. Que la impresora imprima no basta: hace falta el MP Driver de la serie TS5100 (incluye WIA/ScanGear) o añadir el dispositivo como escáner en Impresoras y escáneres.");
+            notes.Add("En Wi-Fi, el Canon y el PC deben estar en la misma red. Prueba también por USB.");
+            notes.Add("Cierra IJ Scan Utility, Fax y Escáner u otra app que tenga el dispositivo abierto, y pulsa Actualizar dispositivos.");
+        }
+        else
+        {
+            notes.Add("Lista: " + string.Join("; ", devices.Select(d => $"{d.Name} [{d.InterfaceLabel}]")));
         }
 
         if (caps is { HasAutomaticDocumentFeeder: true })

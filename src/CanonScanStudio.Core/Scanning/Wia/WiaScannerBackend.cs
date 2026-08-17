@@ -97,6 +97,19 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
 
     private List<ScanDevice> ListDevicesCore()
     {
+        var devices = EnumerateOnce();
+        if (devices.Count == 0)
+        {
+            _log.Info("WIA no ha listado dispositivos en el primer intento. Se reintenta.");
+            Thread.Sleep(400);
+            devices = EnumerateOnce();
+        }
+
+        return devices;
+    }
+
+    private List<ScanDevice> EnumerateOnce()
+    {
         object? manager = null;
         var devices = new List<ScanDevice>();
         try
@@ -112,39 +125,36 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
                 object? info = null;
                 try
                 {
-                    info = WiaCom.Item(infos, i);
-                    var type = Convert.ToInt32(WiaCom.Get(info, "Type") ?? 0);
-                    if (type != WiaConstants.ScannerDeviceType)
+                    info = TryGetCollectionItem(infos, i);
+                    if (info is null)
                     {
+                        _log.Warn($"WIA no ha permitido leer el dispositivo {i} de {count}.");
                         continue;
                     }
 
-                    var properties = WiaCom.Get(info, "Properties")!;
-                    var id = WiaCom.ReadString(properties, WiaConstants.DipDevId)
-                             ?? WiaCom.ReadString(info, "DeviceID")
-                             ?? $"wia-{i}";
-                    var name = WiaCom.ReadString(properties, WiaConstants.DipDevName)
-                               ?? WiaCom.ReadString(properties, WiaConstants.DipDevDesc)
-                               ?? "Escáner WIA";
-                    var manufacturer = WiaCom.ReadString(properties, WiaConstants.DipVendDesc);
-                    var port = WiaCom.ReadString(properties, WiaConstants.DipPortName);
-                    var connection = DeviceMatcher.InferConnection(name, port);
-                    var family = DeviceMatcher.IsCanonTs5100Family(name);
+                    var identity = ReadIdentity(info, i);
+                    if (!ShouldIncludeWiaDevice(identity.Type, identity.Name))
+                    {
+                        _log.Info($"WIA omitido (no parece escáner): '{identity.Name}' tipo={identity.Type} id={identity.Id}");
+                        continue;
+                    }
 
+                    var connection = DeviceMatcher.InferConnection(identity.Name, identity.Port);
+                    var family = DeviceMatcher.IsCanonTs5100Family(identity.Name);
                     devices.Add(new ScanDevice
                     {
-                        Id = id,
-                        Name = name,
+                        Id = identity.Id,
+                        Name = identity.Name,
                         Interface = ScannerInterfaceKind.Wia,
                         Connection = connection,
                         IsCanonTs5100Family = family,
-                        Manufacturer = manufacturer,
-                        Port = port,
+                        Manufacturer = identity.Manufacturer,
+                        Port = identity.Port,
                         StatusText = "Detectado",
                         IsAvailable = true
                     });
 
-                    _log.Info($"WIA dispositivo: '{name}' id={id} puerto={port} familiaTS5100={family}");
+                    _log.Info($"WIA dispositivo: '{identity.Name}' id={identity.Id} puerto={identity.Port} tipo={identity.Type} familiaTS5100={family}");
                 }
                 catch (Exception ex)
                 {
@@ -312,21 +322,26 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
         object? info = null;
         for (var i = 1; i <= count; i++)
         {
-            var candidate = WiaCom.Item(infos, i);
-            var type = Convert.ToInt32(WiaCom.Get(candidate, "Type") ?? 0);
-            if (type != WiaConstants.ScannerDeviceType)
+            var candidate = TryGetCollectionItem(infos, i);
+            if (candidate is null)
             {
-                WiaCom.Release(candidate);
                 continue;
             }
 
-            var properties = WiaCom.Get(candidate, "Properties")!;
-            var id = WiaCom.ReadString(properties, WiaConstants.DipDevId)
-                     ?? WiaCom.ReadString(candidate, "DeviceID");
-            if (string.Equals(id, deviceId, StringComparison.OrdinalIgnoreCase))
+            try
             {
-                info = candidate;
-                break;
+                var identity = ReadIdentity(candidate, i);
+                if (string.Equals(identity.Id, deviceId, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(identity.Name, deviceId, StringComparison.OrdinalIgnoreCase))
+                {
+                    info = candidate;
+                    break;
+                }
+            }
+            catch
+            {
+                WiaCom.Release(candidate);
+                continue;
             }
 
             WiaCom.Release(candidate);
@@ -474,6 +489,100 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
 
         return thousandths.Value / 1000.0;
     }
+
+    private static object? TryGetCollectionItem(object collection, int oneBasedIndex)
+    {
+        try
+        {
+            return WiaCom.Item(collection, oneBasedIndex);
+        }
+        catch
+        {
+            try
+            {
+                return WiaCom.Item(collection, oneBasedIndex - 1);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
+
+    private static WiaIdentity ReadIdentity(object info, int index)
+    {
+        object? properties = null;
+        try
+        {
+            properties = WiaCom.Get(info, "Properties");
+        }
+        catch
+        {
+            // Algunos DeviceInfo no exponen Properties hasta Connect.
+        }
+
+        var id = (properties is null ? null : WiaCom.ReadString(properties, WiaConstants.DipDevId))
+                 ?? TryReadString(info, "DeviceID")
+                 ?? $"wia-{index}";
+        var name = (properties is null ? null : WiaCom.ReadString(properties, WiaConstants.DipDevName))
+                   ?? (properties is null ? null : WiaCom.ReadString(properties, WiaConstants.DipDevDesc))
+                   ?? TryReadString(info, "Name")
+                   ?? "Escáner WIA";
+        var manufacturer = properties is null ? null : WiaCom.ReadString(properties, WiaConstants.DipVendDesc);
+        var port = properties is null ? null : WiaCom.ReadString(properties, WiaConstants.DipPortName);
+        var type = ReadDeviceType(info, properties);
+        return new WiaIdentity(id, name, type, manufacturer, port);
+    }
+
+    private static int ReadDeviceType(object info, object? properties)
+    {
+        try
+        {
+            var type = WiaCom.Get(info, "Type");
+            if (type is not null)
+            {
+                return Convert.ToInt32(type, System.Globalization.CultureInfo.InvariantCulture);
+            }
+        }
+        catch
+        {
+            // Se prueba la propiedad DIP_DEV_TYPE.
+        }
+
+        return properties is null ? 0 : WiaCom.ReadInt(properties, WiaConstants.DipDevType) ?? 0;
+    }
+
+    private static bool ShouldIncludeWiaDevice(int rawType, string name)
+    {
+        if (DeviceMatcher.IsCanonTs5100Family(name) || DeviceMatcher.LooksLikeScanner(name))
+        {
+            return true;
+        }
+
+        var sti = ExtractStiType(rawType);
+        return sti is 0 or WiaConstants.ScannerDeviceType;
+    }
+
+    private static int ExtractStiType(int rawType)
+    {
+        var high = (rawType >> 16) & 0xFFFF;
+        var low = rawType & 0xFFFF;
+        return high != 0 ? high : low;
+    }
+
+    private static string? TryReadString(object target, string name)
+    {
+        try
+        {
+            return WiaCom.Get(target, name)?.ToString();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private readonly record struct WiaIdentity(string Id, string Name, int Type, string? Manufacturer, string? Port);
 
     private void EnsureWindows()
     {
