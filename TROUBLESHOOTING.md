@@ -37,9 +37,11 @@ Pulsa **Reintentar** (vuelve a buscar dispositivos). Las páginas ya escaneadas 
 
 Es una limitación del **controlador WIA de Canon en red**, no de esta aplicación. En red Canon documenta 150/300/600 dpi y no expone brillo/contraste. La app aplica exposición después, sobre la imagen recibida.
 
-## 1200 DPI no aparece
+## 1200 DPI
 
-El WIA de TS5100 suele topar en 600 dpi aunque el CIS óptico sea 1200×2400. Si el driver no publica 1200, no se ofrece. ScanGear/TWAIN a veces permite más: cambia la interfaz a TWAIN en Configuración si tienes ScanGear instalado.
+El PIXMA TS5151 tiene CIS óptico **1200×2400**. La lista incluye 75, 150, 200, 300, 600 y **1200**.
+
+En Wi-Fi, WIA a veces solo admite 600: si eliges 1200 y el controlador lo rechaza, la imagen puede salir a 600. Por red (eSCL) se pide 1200 al aparato. Un A4 a 1200 es mucho más pesado y lento que a 300.
 
 ## TWAIN no lista el dispositivo
 

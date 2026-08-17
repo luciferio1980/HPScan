@@ -65,7 +65,7 @@ internal static class TwainNativeSession
             DeviceId = device.Id,
             DeviceName = device.Name,
             Interface = ScannerInterfaceKind.Twain,
-            ResolutionsDpi = resolutions,
+            ResolutionsDpi = resolutions.Count == 0 ? ResolutionPresets.ForTs5151() : ResolutionPresets.ForTs5151(resolutions),
             ColorModes = [ColorMode.Color, ColorMode.Grayscale, ColorMode.BlackAndWhite],
             Sources = [ScanSourceKind.Flatbed],
             MaxWidthInches = 8.5,

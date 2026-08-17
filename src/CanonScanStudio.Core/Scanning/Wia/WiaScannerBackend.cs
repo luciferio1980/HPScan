@@ -213,10 +213,14 @@ public sealed class WiaScannerBackend : IScannerBackend, IDisposable
                 resolutions = WiaCom.ReadNumericSubtypes(itemProps, WiaConstants.IpsYRes);
             }
 
-            // Canon documenta 50-600 dpi en WIA. No ofrecemos 1200 salvo que el driver lo liste.
             if (resolutions.Count == 0)
             {
                 _log.Warn($"El controlador WIA de '{name}' no ha publicado resoluciones. Se consultará al escanear.");
+            }
+
+            if (DeviceMatcher.IsCanonTs5100Family(name))
+            {
+                resolutions = ResolutionPresets.ForTs5151(resolutions);
             }
 
             var colorModes = ReadColorModes(itemProps);

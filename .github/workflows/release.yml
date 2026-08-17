@@ -86,8 +86,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.0.5
-          name: Canon Scan Studio 1.0.5
+          tag_name: v1.0.6
+          name: Canon Scan Studio 1.0.6
           make_latest: true
           fail_on_unmatched_files: true
           files: |
@@ -96,10 +96,8 @@ jobs:
           body: |
             Paquete listo para Windows 10/11 64 bits. No hace falta instalar .NET.
 
-            ## Novedades 1.0.5
-            - El encabezado ya no muestra «Canon PIXMA TS5151» si no hay escáner (eso parecía detectado y «No disponible»).
-            - Si el Selector EX2 ve el TS5100 en Wi-Fi pero WIA no lo lista, la app busca la IP (impresora/ARP) y escanea por **eSCL** (AirPrint).
-            - No abre una segunda ventana del Selector si ya está abierto: hay que pulsar **Aceptar** y luego Reintentar.
+            ## Novedades 1.0.6
+            - Vuelve a aparecer **1200 DPI** (el CIS del TS5151 es 1200×2400). En 1.0.5 la lista de Wi-Fi se quedaba en 600.
 
             ## Qué descargar
             - **CanonScanStudio-Setup.exe** — instalador con acceso directo
@@ -108,8 +106,8 @@ jobs:
             ## Uso
             1. Enciende el Canon PIXMA TS5151.
             2. En Wi-Fi: Selector EX2 → marca TS5100 → **Aceptar**.
-            3. Abre Canon Scan Studio 1.0.5 y pulsa **Reintentar**. Debería aparecer `Canon TS5100 series (Wi-Fi)`.
-            4. Pulsa **Escanear**.
+            3. Abre Canon Scan Studio y pulsa **Reintentar**.
+            4. Elige resolución (hasta 1200 DPI) y pulsa **Escanear**.
 
             Si SmartScreen muestra un aviso, pulsa *Más información* → *Ejecutar de todas formas*.
 

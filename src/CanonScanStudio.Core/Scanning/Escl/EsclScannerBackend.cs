@@ -72,7 +72,7 @@ public sealed class EsclScannerBackend : IScannerBackend
             DeviceId = deviceId,
             DeviceName = "Canon TS5100 series",
             Interface = ScannerInterfaceKind.Escl,
-            ResolutionsDpi = [75, 150, 200, 300, 600],
+            ResolutionsDpi = ResolutionPresets.ForTs5151(),
             ColorModes = [ColorMode.Color, ColorMode.Grayscale, ColorMode.BlackAndWhite],
             Sources = [ScanSourceKind.Flatbed],
             MaxWidthInches = 8.5,

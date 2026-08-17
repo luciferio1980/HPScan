@@ -66,7 +66,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public ObservableCollection<PageItemViewModel> Pages { get; } = [];
     public ObservableCollection<ScanDevice> Devices { get; } = [];
-    public ObservableCollection<int> Resolutions { get; } = [75, 150, 200, 300, 600];
+    public ObservableCollection<int> Resolutions { get; } = new(ResolutionPresets.Standard);
     public ObservableCollection<ColorMode> ColorModes { get; } = [ColorMode.Color, ColorMode.Grayscale, ColorMode.BlackAndWhite];
     public ObservableCollection<PageSizeDefinition> PageSizes { get; } = new(PageSizeDefinition.Presets);
     public ObservableCollection<OutputFormat> Formats { get; } = [OutputFormat.Pdf, OutputFormat.Jpeg, OutputFormat.Png, OutputFormat.Tiff];
@@ -753,15 +753,18 @@ public sealed partial class MainViewModel : ObservableObject
 
         if (caps.ResolutionsDpi.Count > 0)
         {
+            var dpiList = SelectedDevice?.IsCanonTs5100Family == true
+                ? ResolutionPresets.ForTs5151(caps.ResolutionsDpi)
+                : caps.ResolutionsDpi;
             Resolutions.Clear();
-            foreach (var dpi in caps.ResolutionsDpi)
+            foreach (var dpi in dpiList)
             {
                 Resolutions.Add(dpi);
             }
 
             if (!Resolutions.Contains(SelectedDpi))
             {
-                SelectedDpi = caps.ClosestDpi(SelectedDpi);
+                SelectedDpi = dpiList.OrderBy(d => Math.Abs(d - SelectedDpi)).First();
             }
         }
 

@@ -57,6 +57,27 @@ public class NetworkLocatorAndEsclTests
         xml.Should().Contain("RGB24");
         xml.Should().Contain("Platen");
         xml.Should().Contain("image/jpeg");
+        EsclProtocol.BuildScanSettings(new ScanRequest
+        {
+            DeviceId = "escl:192.168.1.10",
+            Dpi = 1200,
+            ColorMode = ColorMode.Color
+        }).Should().Contain("1200");
+    }
+
+    [Fact]
+    public void Escl_capabilities_include_1200_dpi()
+    {
+        var backend = new EsclScannerBackend(new InMemoryLog());
+        backend.GetCapabilities("escl:192.168.1.10").ResolutionsDpi.Should().Contain(1200);
+        backend.GetCapabilities("escl:192.168.1.10").ResolutionsDpi.Should().Contain(600);
+    }
+
+    [Fact]
+    public void Ts5151_resolution_presets_keep_1200()
+    {
+        ResolutionPresets.ForTs5151([150, 300, 600]).Should().Contain(1200);
+        ResolutionPresets.Standard.Should().Equal(75, 150, 200, 300, 600, 1200);
     }
 
     [Fact]
