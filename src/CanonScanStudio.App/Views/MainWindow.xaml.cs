@@ -90,11 +90,29 @@ public partial class MainWindow : Window
         }
 
         _dragStart = e.GetPosition(null);
-        if (ThumbnailList.SelectedIndex >= 0)
-        {
-            _dragIndex = ThumbnailList.SelectedIndex;
-        }
+        _dragIndex = ThumbnailList.SelectedIndex;
     }
+
+    private void ThumbnailPreviewMouseMove(object sender, MouseEventArgs e)
+    {
+        if (e.LeftButton != MouseButtonState.Pressed || _dragIndex < 0)
+        {
+            return;
+        }
+
+        var diff = _dragStart - e.GetPosition(null);
+        if (Math.Abs(diff.X) <= SystemParameters.MinimumHorizontalDragDistance &&
+            Math.Abs(diff.Y) <= SystemParameters.MinimumVerticalDragDistance)
+        {
+            return;
+        }
+
+        var from = _dragIndex;
+        _dragIndex = -1;
+        DragDrop.DoDragDrop(ThumbnailList, from, DragDropEffects.Move);
+    }
+
+    private void ThumbnailPreviewMouseUp(object sender, MouseButtonEventArgs e) => _dragIndex = -1;
 
     private void ThumbnailDragOver(object sender, DragEventArgs e)
     {
@@ -104,17 +122,28 @@ public partial class MainWindow : Window
 
     private void ThumbnailDrop(object sender, DragEventArgs e)
     {
-        if (DataContext is not MainViewModel vm) return;
+        _dragIndex = -1;
+        if (DataContext is not MainViewModel vm)
+        {
+            return;
+        }
+
         if (e.Data.GetData(DataFormats.FileDrop) is string[] files)
         {
             foreach (var file in files)
             {
                 vm.ImportPath(file);
             }
+
             return;
         }
 
-        if (_dragIndex < 0) return;
+        if (!e.Data.GetDataPresent(typeof(int)))
+        {
+            return;
+        }
+
+        var from = (int)e.Data.GetData(typeof(int))!;
         var target = e.OriginalSource as DependencyObject;
         while (target is not null && target is not ListBoxItem)
         {
@@ -126,24 +155,8 @@ public partial class MainWindow : Window
             var to = ThumbnailList.ItemContainerGenerator.IndexFromContainer(item);
             if (to >= 0)
             {
-                vm.Reorder(_dragIndex, to);
+                vm.Reorder(from, to);
             }
-        }
-    }
-
-    protected override void OnPreviewMouseMove(MouseEventArgs e)
-    {
-        base.OnPreviewMouseMove(e);
-        if (e.LeftButton != MouseButtonState.Pressed || _dragIndex < 0)
-        {
-            return;
-        }
-
-        var diff = _dragStart - e.GetPosition(null);
-        if (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
-            Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance)
-        {
-            DragDrop.DoDragDrop(ThumbnailList, _dragIndex, DragDropEffects.Move);
         }
     }
 }

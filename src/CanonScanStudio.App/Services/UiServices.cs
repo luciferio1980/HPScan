@@ -48,8 +48,10 @@ public sealed class UiDialogService : IUiDialogService
     {
         var dialog = new Microsoft.Win32.OpenFileDialog
         {
+            Title = "Importar imagen",
             Filter = filter,
-            Multiselect = true
+            Multiselect = true,
+            CheckFileExists = true
         };
         return dialog.ShowDialog() == true ? string.Join("|", dialog.FileNames) : null;
     }

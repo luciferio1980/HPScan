@@ -8,17 +8,19 @@
         Background="#F3F3F3"
         ShowInTaskbar="False"
         AllowDrop="True"
-        PreviewMouseMove="OnPreviewMouseMove"
+        PreviewMouseLeftButtonUp="OnPreviewMouseUp"
         DragOver="OnDragOver"
         Drop="OnDrop">
     <DockPanel>
         <Border DockPanel.Dock="Bottom" Background="White" BorderBrush="#D9D9D9" BorderThickness="0,1,0,0" Padding="16,12">
             <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button Content="Mover izquierda" Style="{StaticResource SecondaryButton}" MinWidth="120" Margin="0,0,8,0" Click="OnMoveLeft" />
+                    <Button Content="Mover derecha" Style="{StaticResource SecondaryButton}" MinWidth="120" Margin="0,0,8,0" Click="OnMoveRight" />
                     <Button Content="Cancelar" Style="{StaticResource SecondaryButton}" IsCancel="True" MinWidth="110" Margin="0,0,8,0" Click="OnCancel" />
                     <Button Content="Aceptar" Style="{StaticResource PrimaryButton}" IsDefault="True" MinWidth="110" Click="OnAccept" />
                 </StackPanel>
-                <TextBlock Text="Arrastra cada imagen al lugar que quieras. Aceptar guarda el orden; Cancelar lo deja como estaba."
+                <TextBlock Text="Arrastra cada imagen o usa Mover izquierda/derecha. Aceptar guarda el orden; Cancelar lo deja como estaba."
                            Foreground="#6B6B6B" VerticalAlignment="Center" TextWrapping="Wrap" Margin="0,0,16,0" />
             </DockPanel>
         </Border>
@@ -31,6 +33,7 @@
                      AllowDrop="True"
                      PreviewMouseLeftButtonDown="OnPreviewMouseDown"
                      PreviewMouseMove="OnPreviewMouseMove"
+                     PreviewMouseLeftButtonUp="OnPreviewMouseUp"
                      DragOver="OnDragOver"
                      Drop="OnDrop"
                      GiveFeedback="OnGiveFeedback">

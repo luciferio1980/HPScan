@@ -1,5 +1,16 @@
 # Solución de problemas — Canon Scan Studio y PIXMA TS5151
 
+## Dónde descargar el programa
+
+El instalador **no** está en el botón verde **Code**. Está en **Releases**:
+
+https://github.com/luciferio1980/HPScan/releases/latest
+
+Descarga directa:
+
+- https://github.com/luciferio1980/HPScan/releases/latest/download/CanonScanStudio-Setup.exe
+- https://github.com/luciferio1980/HPScan/releases/latest/download/CanonScanStudio-Portable-win-x64.zip
+
 ## El programa no se abre / se cierra al instante
 
 1. Usa Windows **10 u 11 de 64 bits**. No funciona en 32 bits ni en macOS/Linux.

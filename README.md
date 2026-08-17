@@ -2,16 +2,17 @@
 
 Aplicación de escritorio para Windows 10/11 que escanea, previsualiza, edita, organiza y guarda documentos usando un **Canon PIXMA TS5151** (serie TS5100).
 
-## Descargar y usar
+## Descargar el programa (Windows)
 
-Paquete listo para Windows 10/11 **64 bits**. No hace falta instalar .NET:
+**No uses** el botón verde **Code → Download ZIP**. Eso es el código fuente, no el instalador.
 
-**https://github.com/luciferio1980/HPScan/releases/latest**
+Pulsa aquí para bajar la última versión (1.0.12 o superior):
 
-Descarga la versión **1.0.11 o superior**:
+- **[CanonScanStudio-Setup.exe](https://github.com/luciferio1980/HPScan/releases/latest/download/CanonScanStudio-Setup.exe)** — instalador con acceso directo
+- **[CanonScanStudio-Portable-win-x64.zip](https://github.com/luciferio1980/HPScan/releases/latest/download/CanonScanStudio-Portable-win-x64.zip)** — descomprime la carpeta y abre `CanonScanStudio.exe`
 
-1. **CanonScanStudio-Setup.exe** — instalador con acceso directo
-2. **CanonScanStudio-Portable-win-x64.zip** — descomprime la carpeta y abre `CanonScanStudio.exe`
+Página de versiones: **https://github.com/luciferio1980/HPScan/releases/latest**  
+En esa página, abajo del texto, está **Assets** con los dos archivos. Elige el `.exe` o el `.zip`.
 
 La primera vez Windows puede mostrar SmartScreen: *Más información* → *Ejecutar de todas formas*.
 

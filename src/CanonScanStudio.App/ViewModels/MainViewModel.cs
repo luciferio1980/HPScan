@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows;
+using System.Windows.Input;
 using CanonScanStudio.App.Services;
 using CanonScanStudio.App.Views;
 using CanonScanStudio.Infrastructure;
@@ -230,6 +231,12 @@ public sealed partial class MainViewModel : ObservableObject
             IsScanning = false;
             ScanProgressText = "";
             ScanCommand.NotifyCanExecuteChanged();
+            OrganizePagesCommand.NotifyCanExecuteChanged();
+            DeleteSelectedCommand.NotifyCanExecuteChanged();
+            DuplicateSelectedCommand.NotifyCanExecuteChanged();
+            RotateLeftCommand.NotifyCanExecuteChanged();
+            RotateRightCommand.NotifyCanExecuteChanged();
+            CommandManager.InvalidateRequerySuggested();
             RefreshScannerState();
             NotifyUi();
         }
@@ -238,7 +245,8 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand]
     private void Import()
     {
-        var picked = _dialogs.PickOpenFiles("Imágenes y PDF|*.jpg;*.jpeg;*.png;*.tif;*.tiff;*.bmp;*.pdf");
+        var picked = _dialogs.PickOpenFiles(
+            "Imágenes|*.jpg;*.jpeg;*.png;*.bmp;*.tif;*.tiff|PDF|*.pdf|Todos los archivos|*.*");
         if (string.IsNullOrWhiteSpace(picked))
         {
             return;
@@ -275,41 +283,68 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanEditPage))]
     private void DeleteSelected()
     {
-        if (SelectedPage is null)
+        var item = SelectedPage ?? Pages.LastOrDefault();
+        if (item is null)
         {
             return;
         }
 
+        SelectedPage = item;
         if (_settings.Current.ConfirmPageDelete &&
-            !_dialogs.Confirm("Eliminar página", "¿Eliminar la página seleccionada? El original se conserva en la sesión hasta que se cree un documento nuevo."))
+            !_dialogs.Confirm("Eliminar página", "¿Eliminar la página seleccionada?"))
         {
             return;
         }
 
-        var id = SelectedPage.Page.Id;
+        var id = item.Page.Id;
         var snapshot = _session.Current.Pages.ToList();
-        _undo.Execute(new DelegateCommand("Eliminar",
-            () =>
-            {
-                _session.RemovePages([id]);
-                ReloadPagesFromSession();
-            },
-            () =>
-            {
-                _session.Current.Pages.Clear();
-                _session.Current.Pages.AddRange(snapshot);
-                _session.Current.Renumber();
-                ReloadPagesFromSession();
-            }));
+        try
+        {
+            _undo.Execute(new DelegateCommand("Eliminar",
+                () =>
+                {
+                    _session.RemovePages([id]);
+                    ReloadPagesFromSession();
+                },
+                () =>
+                {
+                    _session.Current.Pages.Clear();
+                    _session.Current.Pages.AddRange(snapshot);
+                    _session.Current.Renumber();
+                    ReloadPagesFromSession();
+                }));
+            StatusText = Pages.Count == 0 ? "Página eliminada" : $"Página eliminada · {Pages.Count} en el documento";
+        }
+        catch (Exception ex)
+        {
+            _log.Error("No se ha podido eliminar la página.", ex);
+            _dialogs.Info("Eliminar", "No se ha podido eliminar la página. " + ex.Message);
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanEditPage))]
     private void DuplicateSelected()
     {
-        if (SelectedPage is null) return;
-        var copy = _session.DuplicatePage(SelectedPage.Page.Id);
-        ReloadPagesFromSession();
-        SelectedPage = Pages.FirstOrDefault(p => p.Page.Id == copy.Id);
+        var item = SelectedPage ?? Pages.LastOrDefault();
+        if (item is null)
+        {
+            return;
+        }
+
+        SelectedPage = item;
+        try
+        {
+            var copy = _session.DuplicatePage(item.Page.Id);
+            ReloadPagesFromSession();
+            SelectedPage = Pages.FirstOrDefault(p => p.Page.Id == copy.Id);
+            StatusText = "Página duplicada";
+            NotifyUi();
+        }
+        catch (Exception ex)
+        {
+            _log.Error("No se ha podido duplicar la página.", ex);
+            _dialogs.Info("Duplicar", "No se ha podido duplicar la página. " + ex.Message);
+        }
     }
 
     [RelayCommand]
@@ -372,7 +407,7 @@ public sealed partial class MainViewModel : ObservableObject
             }));
     }
 
-    private bool CanEditPage() => SelectedPage is not null;
+    private bool CanEditPage() => SelectedPage is not null || Pages.Count > 0;
 
     [RelayCommand(CanExecute = nameof(CanEditPage))]
     private void RotateLeft() => MutateEdit("Rotar izquierda", e => e.RotateLeft());

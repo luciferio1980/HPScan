@@ -73,11 +73,14 @@ public partial class OrganizePagesWindow : Window
         }
 
         _dragging = true;
-        var data = new DataObject(typeof(int), _dragIndex);
+        var from = _dragIndex;
+        _dragIndex = -1;
+        var data = new DataObject(typeof(int), from);
         DragDrop.DoDragDrop(PageList, data, DragDropEffects.Move);
         _dragging = false;
-        _dragIndex = -1;
     }
+
+    private void OnPreviewMouseUp(object sender, MouseButtonEventArgs e) => _dragIndex = -1;
 
     private void OnGiveFeedback(object sender, GiveFeedbackEventArgs e)
     {
@@ -181,5 +184,28 @@ public partial class OrganizePagesWindow : Window
     {
         DialogResult = false;
         Close();
+    }
+
+    private void OnMoveLeft(object sender, RoutedEventArgs e) => MoveSelected(-1);
+
+    private void OnMoveRight(object sender, RoutedEventArgs e) => MoveSelected(1);
+
+    private void MoveSelected(int delta)
+    {
+        var from = PageList.SelectedIndex;
+        if (from < 0)
+        {
+            from = 0;
+        }
+
+        var to = Math.Clamp(from + delta, 0, _pages.Count - 1);
+        if (to == from || _pages.Count < 2)
+        {
+            return;
+        }
+
+        _pages.Move(from, to);
+        Renumber();
+        PageList.SelectedIndex = to;
     }
 }

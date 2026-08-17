@@ -144,6 +144,8 @@ public sealed class EsclScannerBackend : IScannerBackend
             // El trabajo puede caducar solo.
         }
 
+        Thread.Sleep(1200);
+
         if (!EsclProtocol.IsImageBytes(bytes))
         {
             throw new ScannerException(
@@ -193,7 +195,7 @@ public sealed class EsclScannerBackend : IScannerBackend
     private HttpResponseMessage PostJobAllowingBusy(string ip, ScanRequest request)
     {
         HttpResponseMessage? last = null;
-        for (var attempt = 0; attempt < 4; attempt++)
+        for (var attempt = 0; attempt < 8; attempt++)
         {
             last?.Dispose();
             last = PostJob(ip, request);
@@ -201,7 +203,7 @@ public sealed class EsclScannerBackend : IScannerBackend
             if (code is 409 or 423 or 429 or 503)
             {
                 request.Progress?.Report(new ScanProgress(20, "El escáner se está preparando para otra página…"));
-                Thread.Sleep(1800);
+                Thread.Sleep(2200);
                 continue;
             }
 

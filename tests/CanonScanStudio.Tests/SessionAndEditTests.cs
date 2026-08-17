@@ -158,6 +158,57 @@ public class SessionAndEditTests : IDisposable
     }
 
     [Fact]
+    public void Import_jpeg_returns_png_bytes()
+    {
+        var path = Path.Combine(_root, "photo.jpg");
+        using (var image = new Image<Rgba32>(16, 12, new Rgba32(40, 80, 120)))
+        {
+            image.SaveAsJpeg(path);
+        }
+
+        var imported = new ImportService(new InMemoryLog(), new ImageProcessingService()).Import(path);
+        imported.Should().HaveCount(1);
+        imported[0].Extension.Should().Be(".png");
+        imported[0].Bytes[0].Should().Be(0x89);
+        imported[0].Bytes[1].Should().Be(0x50);
+        using var png = Image.Load<Rgba32>(imported[0].Bytes);
+        png.Width.Should().Be(16);
+        png.Height.Should().Be(12);
+    }
+
+    [Fact]
+    public void Duplicate_and_remove_pages_copy_files_on_disk()
+    {
+        var png = Path.Combine(_root, "page.png");
+        using (var image = new Image<Rgba32>(8, 8, new Rgba32(1, 2, 3)))
+        {
+            image.SaveAsPng(png);
+        }
+
+        var bytes = File.ReadAllBytes(png);
+        var session = new SessionService(new InMemoryLog());
+        var first = session.AddScannedPage(new ScanResult
+        {
+            ImageBytes = bytes,
+            FormatHint = "png",
+            Dpi = 300,
+            Width = 8,
+            Height = 8
+        }, bytes, png);
+        var copy = session.DuplicatePage(first.Id);
+
+        session.Current.Pages.Should().HaveCount(2);
+        copy.OriginalPath.Should().NotBe(first.OriginalPath);
+        File.Exists(copy.OriginalPath).Should().BeTrue();
+        File.ReadAllBytes(copy.OriginalPath).Should().Equal(bytes);
+
+        session.RemovePages([first.Id]);
+        session.Current.Pages.Should().HaveCount(1);
+        session.Current.Pages[0].Id.Should().Be(copy.Id);
+        session.Current.Pages[0].Order.Should().Be(0);
+    }
+
+    [Fact]
     public void Reset_edit_returns_to_identity()
     {
         var edit = new PageEditState { Brightness = 12, RotationDegrees = 180, Contrast = -5 };

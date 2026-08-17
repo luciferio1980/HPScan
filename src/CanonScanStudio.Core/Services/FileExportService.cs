@@ -19,14 +19,21 @@ public sealed record ImportedImage(byte[] Bytes, string Extension, int Dpi);
 public sealed class ImportService : IImportService
 {
     private readonly IAppLog _log;
+    private readonly IImageProcessingService _images;
 
-    public ImportService(IAppLog log)
+    public ImportService(IAppLog log, IImageProcessingService images)
     {
         _log = log;
+        _images = images;
     }
 
     public IReadOnlyList<ImportedImage> Import(string path)
     {
+        if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+        {
+            throw new InvalidOperationException("No se ha encontrado el archivo. Elige una imagen del disco.");
+        }
+
         var ext = Path.GetExtension(path).ToLowerInvariant();
         return ext switch
         {
@@ -36,13 +43,11 @@ public sealed class ImportService : IImportService
         };
     }
 
-    private static ImportedImage ImportImage(string path)
+    private ImportedImage ImportImage(string path)
     {
-        using var image = Image.Load<Rgba32>(path);
-        var dpi = image.Metadata.HorizontalResolution > 1 ? (int)Math.Round(image.Metadata.HorizontalResolution) : 300;
-        using var ms = new MemoryStream();
-        image.SaveAsPng(ms);
-        return new ImportedImage(ms.ToArray(), ".png", dpi);
+        var bytes = _images.ApplyEdits(path, PageEditState.Identity());
+        var info = _images.ReadInfo(bytes);
+        return new ImportedImage(bytes, ".png", info.Dpi <= 0 ? 300 : info.Dpi);
     }
 
     private List<ImportedImage> ImportPdf(string path)

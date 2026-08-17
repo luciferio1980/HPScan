@@ -107,6 +107,8 @@
                                  ScrollViewer.CanContentScroll="False"
                                  AllowDrop="True"
                                  PreviewMouseLeftButtonDown="ThumbnailPreviewMouseDown"
+                                 PreviewMouseMove="ThumbnailPreviewMouseMove"
+                                 PreviewMouseLeftButtonUp="ThumbnailPreviewMouseUp"
                                  MouseDoubleClick="OnThumbnailDoubleClick"
                                  DragOver="ThumbnailDragOver"
                                  Drop="ThumbnailDrop">
