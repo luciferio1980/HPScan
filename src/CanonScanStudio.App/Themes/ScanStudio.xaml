@@ -5,6 +5,7 @@
         <Setter Property="FontSize" Value="12" />
         <Setter Property="Background" Value="{DynamicResource WindowBg}" />
         <Setter Property="Foreground" Value="{DynamicResource TextPrimary}" />
+        <Setter Property="Icon" Value="pack://application:,,,/Assets/CanonScanStudio.ico" />
     </Style>
 
     <Style x:Key="HeaderText" TargetType="TextBlock">

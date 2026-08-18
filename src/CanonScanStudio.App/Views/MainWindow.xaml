@@ -4,6 +4,7 @@
         xmlns:conv="clr-namespace:CanonScanStudio.App.Converters"
         xmlns:models="clr-namespace:CanonScanStudio.Models;assembly=CanonScanStudio.Core"
         Title="Canon Scan Studio"
+        Icon="pack://application:,,,/Assets/CanonScanStudio.ico"
         Height="780" Width="1280"
         MinHeight="620" MinWidth="1024"
         WindowStartupLocation="CenterScreen"

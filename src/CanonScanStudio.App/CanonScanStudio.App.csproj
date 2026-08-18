@@ -13,9 +13,14 @@
     <Description>Aplicación de escaneo para Windows orientada al Canon PIXMA TS5151.</Description>
     <ApplicationTitle>Canon Scan Studio</ApplicationTitle>
     <NeutralLanguage>es-ES</NeutralLanguage>
+    <ApplicationIcon>Assets\CanonScanStudio.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\CanonScanStudio.Core\CanonScanStudio.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\CanonScanStudio.ico" />
+    <Resource Include="Assets\CanonScanStudio.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />

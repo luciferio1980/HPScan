@@ -69,4 +69,25 @@ public class ScanSettingDefaultsTests
             xaml.Should().NotContain("Color=\"#2B2B2B\"");
         }
     }
+
+    [Fact]
+    public void App_icon_is_a_windows_ico_with_multiple_sizes()
+    {
+        var dir = new DirectoryInfo(Directory.GetCurrentDirectory());
+        while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "CanonScanStudio.sln")))
+        {
+            dir = dir.Parent;
+        }
+
+        dir.Should().NotBeNull();
+        var ico = Path.Combine(dir!.FullName, "src", "CanonScanStudio.App", "Assets", "CanonScanStudio.ico");
+        File.Exists(ico).Should().BeTrue();
+        var bytes = File.ReadAllBytes(ico);
+        bytes.Length.Should().BeGreaterThan(1024);
+        bytes[0].Should().Be(0);
+        bytes[1].Should().Be(0);
+        bytes[2].Should().Be(1);
+        bytes[3].Should().Be(0);
+        bytes[4].Should().BeGreaterThanOrEqualTo(4);
+    }
 }

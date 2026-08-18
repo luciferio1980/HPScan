@@ -2,7 +2,7 @@
 ; No instala controladores de Canon.
 
 #define MyAppName "Canon Scan Studio"
-#define MyAppVersion "1.0.15"
+#define MyAppVersion "1.0.16"
 #define MyAppPublisher "Canon Scan Studio"
 #define MyAppExeName "CanonScanStudio.exe"
 
@@ -18,6 +18,7 @@ OutputBaseFilename=CanonScanStudio-Setup
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=..\src\CanonScanStudio.App\Assets\CanonScanStudio.ico
 ArchitecturesInstallIn64BitMode=x64compatible
 PrivilegesRequired=lowest
 DisableProgramGroupPage=yes
